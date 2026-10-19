@@ -1,6 +1,13 @@
 import Link from 'next/link';
 
-const navItems = [
+type NavItem = {
+  href: string;
+  label: string;
+  key: string;
+  icon: string;
+};
+
+const navItems: NavItem[] = [
   { href: '/', label: 'Quest Directory', key: 'marketplace', icon: '💼' },
   { href: '/chathub', label: 'Applicant Inbox', key: 'chathub', icon: '💬' },
   { href: '/calculator', label: 'Income Planner', key: 'calculator', icon: '🧮' },
@@ -8,7 +15,11 @@ const navItems = [
   { href: '/blueprint', label: 'Content & Legal', key: 'blueprint', icon: '📖' },
 ];
 
-export default function HerQuestNav({ active = 'marketplace' }) {
+type HerQuestNavProps = {
+  active?: string;
+};
+
+export default function HerQuestNav({ active = 'marketplace' }: HerQuestNavProps) {
   return (
     <header className="topbar">
       <div className="topbar-inner">
