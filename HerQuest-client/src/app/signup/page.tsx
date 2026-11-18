@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import HerQuestNav from '../components/HerQuestNav';
+import { getApiBaseUrl } from '../../lib/api';
 
 export default function SignupPage() {
   const [message, setMessage] = useState('');
@@ -15,7 +16,7 @@ export default function SignupPage() {
 
     const form = new FormData(event.currentTarget);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/auth/signup`, {
+      const response = await fetch(`${getApiBaseUrl()}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

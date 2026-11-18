@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
+import { getApiBaseUrl } from '../../lib/api';
 
 type HerQuestNavProps = {
   active?: string;
@@ -54,7 +55,7 @@ export default function HerQuestNav({ active = 'marketplace' }: HerQuestNavProps
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/quests`,
+        `${getApiBaseUrl()}/api/quests`,
         {
           method: 'POST',
           headers: {

@@ -1,6 +1,16 @@
 import { getSupabase, getSupabaseAdmin } from "../config/supabase";
 
 export const authService = {
+    async signInWithGoogle(redirectTo: string) {
+        return getSupabase().auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo,
+                skipBrowserRedirect: true,
+            },
+        });
+    },
+
     async signInWithGoogleIdToken(idToken: string) {
         return getSupabase().auth.signInWithIdToken({
             provider: "google",

@@ -1,7 +1,4 @@
-import { Router, type Request, type Response } from "express";
-import type { Session, User } from "@supabase/supabase-js";
-import { randomBytes, timingSafeEqual } from "node:crypto";
-import { OAuth2Client } from "google-auth-library";
+import { Router } from "express";
 import { isAuthenticated } from "../middleware/auth.middleware";
 import asyncHandler from "../utils/asyncHandler";
 import HttpError from "../utils/httpError";
@@ -9,173 +6,18 @@ import { objectBody, textField } from "../utils/input";
 import { authService, userService } from "../services";
 
 const router = Router();
-const googleStateCookie = "herquest_google_oauth_state";
-const googleOAuthError = "Could not complete Google login. Please try again.";
-const loginCanceledMessage = "Login was canceled. Please try again.";
-
 function getClientOrigin(): string {
     return process.env.CLIENT_URL?.split(",")[0]?.trim() || "http://localhost:3000";
 }
 
-function redirectToLogin(res: Response, message: string): void {
-    const loginUrl = new URL("/login", getClientOrigin());
-    loginUrl.searchParams.set("error", message);
-    res.redirect(loginUrl.toString());
-}
-
-function getCookie(req: Request, name: string): string | null {
-    const cookies = req.headers.cookie?.split(";") ?? [];
-    for (const cookie of cookies) {
-        const separator = cookie.indexOf("=");
-        if (separator < 0 || cookie.slice(0, separator).trim() !== name) continue;
-        return cookie.slice(separator + 1).trim();
-    }
-    return null;
-}
-
-function clearGoogleStateCookie(res: Response): void {
-    res.clearCookie(googleStateCookie, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/api/auth/google",
-    });
-}
-
-function getGoogleOAuthConfig() {
-    const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
-    const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
-    const redirectUri = process.env.GOOGLE_CALLBACK_URL?.trim();
-
-    if (!clientId || !clientSecret || !redirectUri) return null;
-    return { clientId, clientSecret, redirectUri };
-}
-
 router.get("/google", asyncHandler(async (_req, res) => {
-    const config = getGoogleOAuthConfig();
-    if (!config) {
-        console.error("[Google OAuth] Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_CALLBACK_URL.");
-        redirectToLogin(res, googleOAuthError);
-        return;
+    const redirectTo = new URL("/login", getClientOrigin()).toString();
+    const { data, error } = await authService.signInWithGoogle(redirectTo);
+    if (error || !data.url) {
+        console.error("[Google OAuth] Supabase OAuth request failed.", error?.message);
+        throw new HttpError(503, "Google login is unavailable. Please try again.");
     }
-
-    const state = randomBytes(32).toString("hex");
-    const google = new OAuth2Client(config.clientId, config.clientSecret, config.redirectUri);
-
-    res.cookie(googleStateCookie, state, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 10 * 60 * 1000,
-        path: "/api/auth/google",
-    });
-    res.redirect(google.generateAuthUrl({
-        access_type: "online",
-        prompt: "select_account",
-        scope: ["openid", "email", "profile"],
-        state,
-    }));
-}));
-
-router.get("/google/callback", asyncHandler(async (req, res) => {
-    const config = getGoogleOAuthConfig();
-    if (!config) {
-        clearGoogleStateCookie(res);
-        redirectToLogin(res, googleOAuthError);
-        return;
-    }
-
-    const google = new OAuth2Client(config.clientId, config.clientSecret, config.redirectUri);
-    const state = typeof req.query.state === "string" && req.query.state.length <= 128
-        ? req.query.state
-        : "";
-    const savedState = getCookie(req, googleStateCookie);
-    const stateMatches = state.length === savedState?.length &&
-        savedState !== null &&
-        timingSafeEqual(Buffer.from(state), Buffer.from(savedState));
-    clearGoogleStateCookie(res);
-
-    if (!stateMatches) {
-        redirectToLogin(res, googleOAuthError);
-        return;
-    }
-
-    if (req.query.error) {
-        const message = req.query.error === "access_denied"
-            ? loginCanceledMessage
-            : googleOAuthError;
-        redirectToLogin(res, message);
-        return;
-    }
-
-    const code = typeof req.query.code === "string" && req.query.code.length <= 4096
-        ? req.query.code
-        : "";
-    if (!code) {
-        redirectToLogin(res, googleOAuthError);
-        return;
-    }
-
-    let idToken: string;
-    try {
-        const { tokens } = await google.getToken(code);
-        if (!tokens.id_token) throw new Error("Google did not return an ID token.");
-        const ticket = await google.verifyIdToken({
-            idToken: tokens.id_token,
-            audience: config.clientId,
-        });
-        const payload = ticket.getPayload();
-        if (!payload?.sub || !payload.email || payload.email_verified !== true) {
-            throw new Error("Google returned an incomplete or unverified account.");
-        }
-        idToken = tokens.id_token;
-    } catch (error) {
-        console.error("[Google OAuth] Google token exchange or verification failed.", error);
-        redirectToLogin(res, googleOAuthError);
-        return;
-    }
-
-    let user: User;
-    let session: Session;
-    try {
-        const result = await authService.signInWithGoogleIdToken(idToken);
-        if (result.error || !result.data.user || !result.data.session) {
-            console.error("[Google OAuth] Supabase sign-in failed.", result.error?.message ?? "No session returned.");
-            redirectToLogin(res, googleOAuthError);
-            return;
-        }
-        user = result.data.user;
-        session = result.data.session;
-    } catch (error) {
-        console.error("[Google OAuth] Supabase sign-in request failed.", error);
-        redirectToLogin(res, googleOAuthError);
-        return;
-    }
-
-    try {
-        const { error: profileError } = await authService.upsertProfile({
-            id: user.id,
-            full_name: user.user_metadata.full_name ??
-                user.user_metadata.name ?? "HerQuest Member",
-            email: user.email ?? null,
-        });
-        if (profileError) {
-            console.error("[Google OAuth] User profile setup failed.", profileError.message);
-            redirectToLogin(res, googleOAuthError);
-            return;
-        }
-    } catch (error) {
-        console.error("[Google OAuth] User profile setup request failed.", error);
-        redirectToLogin(res, googleOAuthError);
-        return;
-    }
-
-    const loginUrl = new URL("/login", getClientOrigin());
-    loginUrl.hash = new URLSearchParams({
-        access_token: session.access_token,
-        refresh_token: session.refresh_token,
-    }).toString();
-    res.redirect(loginUrl.toString());
+    res.redirect(data.url);
 }));
 
 router.post("/signup", asyncHandler(async (req, res) => {

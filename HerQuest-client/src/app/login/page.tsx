@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useState, type FormEvent } from 'react';
 import HerQuestNav from '../components/HerQuestNav';
+import { getApiBaseUrl } from '../../lib/api';
 
-const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000').replace(/\/$/, '');
+const apiBaseUrl = getApiBaseUrl();
 
 export default function LoginPage() {
   const [message, setMessage] = useState('');

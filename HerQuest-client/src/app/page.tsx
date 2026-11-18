@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import HerQuestNav from './components/HerQuestNav';
+import { getApiBaseUrl } from '../lib/api';
 
 type QuestCard = {
   id: string | number;
@@ -181,7 +182,7 @@ export default function Home() {
     async function loadQuests() {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/quests`,
+          `${getApiBaseUrl()}/api/quests`,
         );
         const result = await response.json() as { data?: QuestRecord[]; message?: string };
         if (!response.ok) throw new Error(result.message || 'Unable to load quests.');
