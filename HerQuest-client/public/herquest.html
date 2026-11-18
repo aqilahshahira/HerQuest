@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HerQuest Malaysia - Responsive Women's Side Quest Platform</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        teal: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        mauve: {
+                            50: '#faf5f7',
+                            100: '#f4ecef',
+                            500: '#b85c84',
+                            600: '#9d426b',
+                            700: '#813254',
+                        },
+                        amber: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            600: '#d97706',
+                            700: '#b45309',
+                        },
+                        whatsapp: {
+                            500: '#25D366',
+                            600: '#128C7E',
+                            700: '#075E54'
+                        },
+                        cream: '#fffdfa'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #fffdfa;
+            color: #1e293b;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .tab-active {
+            border-bottom: 3px solid #0d9488;
+            color: #0f766e;
+            font-weight: 600;
+        }
+        .disabled-filter {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(80%);
+        }
+        .chat-bubble-user {
+            background-color: #0f766e;
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-bubble-applicant {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            border-bottom-left-radius: 4px;
+        }
+
+        /* CUSTOM CSS MEDIA QUERIES FOR RESPONSIVENESS */
+        @media screen and (max-width: 639px) {
+            .hero-header {
+                padding-top: 1.5rem !important;
+                padding-bottom: 2rem !important;
+            }
+            .hero-title {
+                font-size: 1.65rem !important;
+                line-height: 2.1rem !important;
+            }
+            .filter-panel-box {
+                padding: 0.875rem !important;
+                border-radius: 1rem !important;
+            }
+            .pill-scroll-container {
+                display: flex !important;
+                overflow-x: auto !important;
+                padding-bottom: 0.5rem;
+                justify-content: flex-start !important;
+                -webkit-overflow-scrolling: touch;
+            }
+            .job-pill {
+                flex-shrink: 0 !important;
+                white-space: nowrap !important;
+                min-height: 38px;
+            }
+            .modal-inner-container {
+                max-width: 100% !important;
+                height: 100vh !important;
+                max-height: 100vh !important;
+                border-radius: 0px !important;
+                padding: 1.25rem !important;
+            }
+            button, select, input {
+                min-height: 42px;
+            }
+            .chat-split-view {
+                min-height: auto !important;
+                height: calc(100vh - 160px) !important;
+            }
+        }
+
+        @media screen and (min-width: 640px) and (max-width: 1023px) {
+            .hero-title {
+                font-size: 2.25rem !important;
+            }
+            .quest-grid-layout {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+            .chat-split-view {
+                min-height: 520px !important;
+            }
+        }
+
+        @media screen and (min-width: 1024px) {
+            .desktop-sticky-sidebar {
+                position: sticky;
+                top: 5rem;
+                height: calc(100vh - 6rem);
+                overflow-y: auto;
+            }
+            .quest-grid-layout {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+
+        #responsive-indicator {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            z-index: 50;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #ffffff;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-cream text-slate-800">
+
+    <div id="responsive-indicator">
+        <span class="sm:hidden">📱 Mobile View (&lt;640px)</span>
+        <span class="hidden sm:inline md:hidden">📱 Large Phone (640px-768px)</span>
+        <span class="hidden md:inline lg:hidden">💻 Tablet View (768px-1024px)</span>
+        <span class="hidden lg:inline">🖥️ Laptop/Desktop (&gt;1024px)</span>
+    </div>
+
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-teal-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2 sm:space-x-3 cursor-pointer" onclick="switchTab('marketplace')">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-teal-700 via-teal-600 to-mauve-500 flex items-center justify-center text-white shadow-md">
+                        <i data-lucide="sparkles" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    </div>
+                    <div>
+                        <span class="text-lg sm:text-xl font-bold bg-gradient-to-r from-teal-800 to-mauve-600 bg-clip-text text-transparent">HerQuest</span>
+                        <span class="text-[10px] sm:text-xs bg-teal-100 text-teal-800 px-1.5 sm:px-2 py-0.5 rounded-full font-medium ml-1">MY 🇲🇾</span>
+                    </div>
+                </div>
+
+                <nav class="hidden lg:flex space-x-1 lg:space-x-2">
+                    <button onclick="switchTab('marketplace')" id="nav-marketplace" class="px-3.5 py-2 rounded-lg text-sm font-medium transition-colors hover:text-teal-700 tab-active">
+                        <i data-lucide="briefcase" class="w-4 h-4 inline mr-1.5"></i>Quest Directory
+                    </button>
+                    <button onclick="switchTab('chathub')" id="nav-chathub" class="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors relative">
+                        <i data-lucide="message-square" class="w-4 h-4 inline mr-1.5"></i>Applicant Inbox
+                        <span id="unread-nav-badge" class="ml-1.5 bg-mauve-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">2</span>
+                    </button>
+                    <button onclick="switchTab('calculator')" id="nav-calculator" class="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors">
+                        <i data-lucide="calculator" class="w-4 h-4 inline mr-1.5"></i>Income Planner
+                    </button>
+                    <button onclick="switchTab('community')" id="nav-community" class="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors">
+                        <i data-lucide="shield-check" class="w-4 h-4 inline mr-1.5"></i>Safety Hub
+                    </button>
+                    <button onclick="switchTab('blueprint')" id="nav-blueprint" class="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors">
+                        <i data-lucide="book-open" class="w-4 h-4 inline mr-1.5"></i>Content & Legal
+                    </button>
+                </nav>
+
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <button onclick="toggleSavedDrawer()" class="relative p-2 text-slate-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-all" title="Saved Quests">
+                        <i data-lucide="bookmark" class="w-5 h-5"></i>
+                        <span id="saved-count-badge" class="absolute -top-1 -right-1 bg-mauve-600 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                    </button>
+                    <button onclick="openModal('post-quest-modal')" class="hidden sm:inline-flex items-center space-x-1.5 bg-gradient-to-r from-teal-700 to-teal-600 hover:from-teal-800 hover:to-teal-700 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold shadow-md transition-all">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>Post Quest</span>
+                    </button>
+                    <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-2 shadow-lg">
+            <button onclick="switchTab('marketplace'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-teal-50 text-sm">💼 Quest Directory</button>
+            <button onclick="switchTab('chathub'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-teal-50 text-sm flex justify-between items-center">
+                <span>💬 Applicant Inbox & Chat</span>
+                <span class="bg-mauve-600 text-white text-xs px-2 py-0.5 rounded-full">2 Unread</span>
+            </button>
+            <button onclick="switchTab('calculator'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-teal-50 text-sm">🧮 Side Income Planner</button>
+            <button onclick="switchTab('community'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-teal-50 text-sm">🛡️ Safety & Forum</button>
+            <button onclick="switchTab('blueprint'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-teal-50 text-sm">📖 Content & Legal Guide</button>
+            <button onclick="openModal('post-quest-modal'); toggleMobileMenu()" class="w-full mt-2 bg-teal-700 text-white py-2.5 rounded-xl font-semibold text-center text-sm">+ Post a Side Quest</button>
+        </div>
+    </header>
+
+    <section class="hero-header bg-gradient-to-b from-teal-900 via-teal-800 to-teal-900 text-white py-8 sm:py-12 px-4 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto text-center relative z-10">
+            <div class="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1 rounded-full text-xs font-medium mb-3 text-teal-100">
+                <i data-lucide="message-circle" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Direct Chat & Instant WhatsApp Alert to Quest Owners</span>
+            </div>
+            <h1 class="hero-title text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 leading-tight">
+                Turn Skills Into Extra Income. <br class="hidden sm:inline"/>Apply & Connect Via Platform Chat or WhatsApp.
+            </h1>
+            <p class="max-w-2xl mx-auto text-teal-100 text-xs sm:text-base mb-6">
+                Post-partum cooks, female drivers for single university drop-offs, tutors, caretakers & designers across Malaysia.
+            </p>
+
+            <div class="pill-scroll-container flex flex-wrap justify-center gap-2 max-w-5xl mx-auto px-1">
+                <button onclick="filterJobTypeDirect('All')" class="job-pill active bg-white text-teal-900 font-semibold px-3.5 py-1.5 rounded-full text-xs shadow-sm hover:bg-teal-50 transition">
+                    🌟 All Quests
+                </button>
+                <button onclick="filterJobTypeDirect('Post-Partum Cook')" class="job-pill bg-teal-800/80 hover:bg-teal-700 text-white px-3.5 py-1.5 rounded-full text-xs transition border border-teal-600/50">
+                    👶 Post-Partum Cook
+                </button>
+                <button onclick="filterJobTypeDirect('One-Time Driver')" class="job-pill bg-teal-800/80 hover:bg-teal-700 text-white px-3.5 py-1.5 rounded-full text-xs transition border border-teal-600/50">
+                    🚗 One-Time Driver
+                </button>
+                <button onclick="filterJobTypeDirect('Chef')" class="job-pill bg-teal-800/80 hover:bg-teal-700 text-white px-3.5 py-1.5 rounded-full text-xs transition border border-teal-600/50">
+                    🍳 Chef / Catering
+                </button>
+                <button onclick="filterJobTypeDirect('Poster designer')" class="job-pill bg-teal-800/80 hover:bg-teal-700 text-white px-3.5 py-1.5 rounded-full text-xs transition border border-teal-600/50">
+                    🎨 Poster Designer
+                </button>
+                <button onclick="filterJobTypeDirect('Event crew')" class="job-pill bg-teal-800/80 hover:bg-teal-700 text-white px-3.5 py-1.5 rounded-full text-xs transition border border-teal-600/50">
+                    🎉 Event Crew
+                </button>
+                <button onclick="filterJobTypeDirect('Tutor')" class="job-pill bg-teal-800/80 hover:bg-teal-700 text-white px-3.5 py-1.5 rounded-full text-xs transition border border-teal-600/50">
+                    📚 Tutor
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 flex-grow w-full">
+
+        <section id="view-marketplace" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="filter-panel-box bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 space-y-4">
+                        <div class="flex items-center justify-between border-b pb-2">
+                            <h3 class="font-bold text-slate-800 text-sm flex items-center">
+                                <i data-lucide="sliders-horizontal" class="w-4 h-4 text-teal-600 mr-2"></i>
+                                Quest Filters
+                            </h3>
+                            <button onclick="resetAllFilters()" class="text-[11px] text-mauve-600 hover:underline font-semibold">Reset</button>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Search Keywords</label>
+                            <div class="relative">
+                                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                                <input type="text" id="search-input" placeholder="Confinement, UKM ride..." oninput="applyFilters()"
+                                    class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-teal-600 focus:bg-white transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Type of Job</label>
+                            <select id="filter-jobtype" onchange="applyFilters()" class="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:border-teal-600 focus:bg-white transition">
+                                <option value="All">💼 All Job Types</option>
+                                <option value="Post-Partum Cook">👶 Post-Partum Cook / Confinement</option>
+                                <option value="One-Time Driver">🚗 One-Time Driver / Ride Service</option>
+                                <option value="Chef">🍳 Chef / Home Baker / Cook</option>
+                                <option value="Driver">🚘 Driver / Regular Delivery</option>
+                                <option value="Event crew">🎉 Event Crew / Usher</option>
+                                <option value="Technician">🔧 Technician / IT Support</option>
+                                <option value="Poster designer">🎨 Poster Designer / Graphic</option>
+                                <option value="Caretaker">👵 Caretaker / Elder Care</option>
+                                <option value="Tutor">📚 Tutor / Academic Guide</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">Frequency</label>
+                                <select id="filter-frequency" onchange="applyFilters()" class="w-full py-2 px-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:border-teal-600 transition">
+                                    <option value="All">⚡ Any</option>
+                                    <option value="one-time">⚡ One-Time</option>
+                                    <option value="recurring">🔄 Recurring</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">Distance</label>
+                                <select id="filter-radius" onchange="applyFilters()" class="w-full py-2 px-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:border-teal-600 transition">
+                                    <option value="All">📍 Any Distance</option>
+                                    <option value="5">📍 &le; 5 km</option>
+                                    <option value="15">📍 &le; 15 km</option>
+                                    <option value="30">📍 &le; 30 km</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
+                                <span>Min Hourly / Rate:</span>
+                                <span id="price-min-label" class="text-teal-700 font-bold">RM 0</span>
+                            </div>
+                            <input type="range" id="filter-price-min" min="0" max="100" value="0" step="5" oninput="applyFilters()"
+                                class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600">
+                        </div>
+
+                        <div id="dietary-filter-container" class="p-3.5 rounded-xl border transition-all duration-300 bg-amber-50/60 border-amber-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-slate-900 flex items-center">
+                                    <i data-lucide="utensils" class="w-3.5 h-3.5 text-amber-600 mr-1.5"></i>
+                                    Dietary & Cultural Tagging
+                                </span>
+                                <span id="dietary-status-tag" class="bg-amber-200 text-amber-900 text-[9px] px-2 py-0.5 rounded-full font-semibold">Food Quests Only</span>
+                            </div>
+
+                            <p id="dietary-notice" class="text-[10px] text-slate-500 mb-2">
+                                Active for Chef and Post-Partum Cook listings.
+                            </p>
+
+                            <div id="dietary-controls-grid" class="space-y-2 text-[11px]">
+                                <div class="bg-white p-2.5 rounded-lg border border-slate-200">
+                                    <span class="font-bold text-teal-800 block text-[10px] mb-1">🌙 Muslim / Halal</span>
+                                    <div class="space-y-1">
+                                        <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" id="diet-halal" onchange="applyFilters()" class="rounded text-teal-600"><span>Strict Halal</span></label>
+                                        <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" id="diet-no-pork" onchange="applyFilters()" class="rounded text-teal-600"><span>No Pork / Lard</span></label>
+                                        <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" id="diet-no-alcohol" onchange="applyFilters()" class="rounded text-teal-600"><span>No Alcohol</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-2.5 rounded-lg border border-slate-200">
+                                    <span class="font-bold text-emerald-800 block text-[10px] mb-1">🌱 Vegan Restrictions</span>
+                                    <div class="grid grid-cols-2 gap-1 text-[10px]">
+                                        <label class="flex items-center space-x-1 cursor-pointer"><input type="checkbox" id="diet-no-egg" onchange="applyFilters()" class="rounded text-emerald-600"><span>No Egg</span></label>
+                                        <label class="flex items-center space-x-1 cursor-pointer"><input type="checkbox" id="diet-no-dairy" onchange="applyFilters()" class="rounded text-emerald-600"><span>No Dairy</span></label>
+                                        <label class="flex items-center space-x-1 cursor-pointer"><input type="checkbox" id="diet-no-honey" onchange="applyFilters()" class="rounded text-emerald-600"><span>No Honey</span></label>
+                                        <label class="flex items-center space-x-1 cursor-pointer"><input type="checkbox" id="diet-no-figs" onchange="applyFilters()" class="rounded text-emerald-600"><span>No Figs</span></label>
+                                        <label class="flex items-center space-x-1 cursor-pointer col-span-2"><input type="checkbox" id="diet-no-oysters" onchange="applyFilters()" class="rounded text-emerald-600"><span>No Oysters/Mussels</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-2.5 rounded-lg border border-slate-200">
+                                    <span class="font-bold text-mauve-800 block text-[10px] mb-1">📿 Chinese Guanyin / Confinement</span>
+                                    <div class="space-y-1">
+                                        <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" id="diet-no-beef" onchange="applyFilters()" class="rounded text-mauve-600"><span>Avoid Beef (Guanyin)</span></label>
+                                        <label class="flex items-center space-x-2 cursor-pointer" title="Garlic, onions, chives, leeks, shallots"><input type="checkbox" id="diet-no-wuhun" onchange="applyFilters()" class="rounded text-mauve-600"><span>No "5 Pungent Roots" (Wu Hun)</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 border-t border-slate-100 space-y-2 text-xs">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="filter-urgent-only" onchange="applyFilters()" class="rounded text-red-600">
+                                <span class="font-semibold text-red-600 flex items-center"><i data-lucide="zap" class="w-3.5 h-3.5 mr-1"></i>Urgent Quests Only</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="filter-wfh-only" onchange="applyFilters()" class="rounded text-teal-600">
+                                <span class="font-medium text-slate-700">Work From Home (WFH) Only</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-8 space-y-4">
+                    <div class="flex justify-between items-center bg-white p-3.5 rounded-2xl border border-slate-200/80">
+                        <div id="quest-count-display" class="font-bold text-teal-800 text-xs sm:text-sm">
+                            Showing active quests
+                        </div>
+                        <span class="text-[11px] text-slate-500 font-medium hidden sm:inline">🇲🇾 Verified Local Opportunities</span>
+                    </div>
+
+                    <div id="quest-grid" class="quest-grid-layout grid grid-cols-1 gap-4">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="view-chathub" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-teal-800 to-teal-900 rounded-2xl sm:rounded-3xl p-5 sm:p-6 text-white shadow-md flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <div class="inline-flex items-center space-x-1.5 bg-white/20 px-2.5 py-0.5 rounded-full text-[11px] font-medium mb-1.5">
+                        <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                        <span>Direct Applicant Chat & WhatsApp Integration</span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-bold">Applicant Inbox & Owner Discussions</h2>
+                    <p class="text-xs text-teal-100 mt-0.5">Discuss schedule, dietary needs, routes, or budget directly with the quest owner.</p>
+                </div>
+                <button onclick="openModal('post-quest-modal')" class="bg-white text-teal-900 hover:bg-teal-50 px-3.5 py-2 rounded-xl text-xs font-bold transition">
+                    + Post Another Quest
+                </button>
+            </div>
+
+            <div class="chat-split-view bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[550px]">
+                
+                <div class="md:col-span-4 border-r border-slate-200 bg-slate-50/50 flex flex-col">
+                    <div class="p-3.5 border-b border-slate-200">
+                        <h3 class="font-bold text-slate-800 text-xs sm:text-sm flex items-center justify-between">
+                            <span>Your Applications & Messages</span>
+                            <span id="active-threads-count" class="text-[10px] bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full font-semibold">4 Threads</span>
+                        </h3>
+                    </div>
+
+                    <div id="applicant-chat-list" class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-slate-100">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <div id="active-chat-container" class="md:col-span-8 flex flex-col justify-between bg-white relative">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <section id="view-calculator" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-teal-800 to-teal-900 rounded-2xl sm:rounded-3xl p-6 text-white shadow-lg">
+                <span class="bg-mauve-500/30 text-mauve-100 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider">Financial Empowerment</span>
+                <h2 class="text-xl sm:text-3xl font-extrabold mt-2 mb-1">Side-Income & Tax Estimator</h2>
+                <p class="text-teal-100 text-xs sm:text-sm">Plan side hours, estimate net earnings, and compute voluntary EPF i-Saraan incentives and SOCSO SPS protections.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-7 bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 space-y-5">
+                    <h3 class="text-base font-bold text-slate-900 border-b pb-3 flex items-center">
+                        <i data-lucide="sliders" class="w-4 h-4 text-teal-600 mr-2"></i>
+                        Weekly Hours & Hourly Rate Selector
+                    </h3>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs sm:text-sm font-semibold text-slate-700">Side Hours per Week:</label>
+                            <span id="hours-val" class="text-base font-bold text-teal-700">12 hrs/week</span>
+                        </div>
+                        <input type="range" id="calc-hours" min="2" max="40" value="12" step="1" oninput="calculateIncome()"
+                            class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs sm:text-sm font-semibold text-slate-700">Estimated Average Rate (RM / hr):</label>
+                            <span id="rate-val" class="text-base font-bold text-teal-700">RM 25 / hr</span>
+                        </div>
+                        <input type="range" id="calc-rate" min="12" max="80" value="25" step="1" oninput="calculateIncome()"
+                            class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600">
+                    </div>
+
+                    <div class="p-3.5 bg-teal-50/60 rounded-xl border border-teal-100 flex items-start space-x-2.5">
+                        <input type="checkbox" id="calc-isaraan" onchange="calculateIncome()" checked class="mt-1 rounded text-teal-600">
+                        <div>
+                            <label for="calc-isaraan" class="text-xs font-semibold text-teal-900 cursor-pointer">Include EPF i-Saraan Voluntary Savings (15%)</label>
+                            <p class="text-[11px] text-teal-700 mt-0.5">Government matches 15% (up to RM500 max per year) for self-employed voluntary contributions.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 bg-mauve-50/60 rounded-xl border border-mauve-100 flex items-start space-x-2.5">
+                        <input type="checkbox" id="calc-socso" onchange="calculateIncome()" checked class="mt-1 rounded text-mauve-600">
+                        <div>
+                            <label for="calc-socso" class="text-xs font-semibold text-mauve-900 cursor-pointer">Deduct SOCSO SPS Protection (~RM13.10/mo)</label>
+                            <p class="text-[11px] text-mauve-700 mt-0.5">Covers medical benefits and accident protection during quest activities.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 border-b pb-3 mb-4">Earnings Projection</h3>
+                        <div class="space-y-3">
+                            <div class="bg-slate-50 p-3.5 rounded-xl">
+                                <span class="text-[10px] text-slate-500 uppercase font-semibold">Gross Monthly Side-Income</span>
+                                <div id="res-gross-month" class="text-2xl font-extrabold text-teal-700 mt-0.5">RM 1,200</div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="border border-slate-100 p-3 rounded-xl bg-slate-50/50">
+                                    <span class="text-[10px] text-slate-500 font-medium">EPF Voluntary</span>
+                                    <div id="res-epf" class="text-sm font-bold text-teal-800">RM 180 / mo</div>
+                                    <span id="res-epf-gov" class="text-[9px] text-teal-600 font-medium">+RM 27 Gov Match</span>
+                                </div>
+                                <div class="border border-slate-100 p-3 rounded-xl bg-slate-50/50">
+                                    <span class="text-[10px] text-slate-500 font-medium">SOCSO Protection</span>
+                                    <div id="res-socso" class="text-sm font-bold text-mauve-700">RM 13.10 / mo</div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-teal-900 text-white rounded-xl">
+                                <span class="text-[10px] uppercase text-teal-200 font-medium block">Net Take-Home Monthly</span>
+                                <div id="res-net" class="text-2xl font-bold text-white mt-0.5">RM 1,006.90</div>
+                                <p class="text-[10px] text-teal-200 mt-1">Annual Total: <strong id="res-annual" class="text-white">RM 14,400</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tax-alert" class="mt-4 p-3 rounded-xl text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-start space-x-2">
+                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                        <span>Within tax-free threshold for single individuals earning under RM34,000/year gross total in Malaysia.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-community" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-mauve-700 to-teal-800 rounded-2xl sm:rounded-3xl p-6 text-white shadow-md">
+                <span class="bg-white/20 text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider">Safe Space</span>
+                <h2 class="text-xl sm:text-3xl font-extrabold mt-2 mb-1">HerQuest Safety & Community Hub</h2>
+                <p class="text-mauve-100 text-xs sm:text-sm">Verified background checks, public meeting exchange zones, and peer mentorship.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center text-teal-700 mb-3">
+                        <i data-lucide="user-check" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-base mb-1">100% Client Verification</h3>
+                    <p class="text-xs text-slate-600">Every employer or client posting a quest undergoes MyKad or SSM business verification.</p>
+                </div>
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="w-10 h-10 bg-mauve-100 rounded-xl flex items-center justify-center text-mauve-700 mb-3">
+                        <i data-lucide="map-pin" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-base mb-1">Safe Meeting Zones</h3>
+                    <p class="text-xs text-slate-600">Recommended public zones at LRT stations, university drop-offs, and community centers.</p>
+                </div>
+                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                    <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-700 mb-3">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-base mb-1">Women-Only Circles</h3>
+                    <p class="text-xs text-slate-600">Connect with fellow side-questers to share confinement cooking tips and driver safety advice.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-blueprint" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-teal-900 via-teal-800 to-slate-900 rounded-2xl sm:rounded-3xl p-6 text-white shadow-md">
+                <span class="bg-teal-500/30 text-teal-200 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider">Guidelines</span>
+                <h2 class="text-xl sm:text-3xl font-extrabold mt-2 mb-1">HerQuest Blueprint & Legal Guide</h2>
+                <p class="text-teal-100 text-xs sm:text-sm">Platform architecture, wage benchmarks, and micro-entrepreneur compliance in Malaysia.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-2">
+                    <h3 class="font-bold text-base text-slate-900 flex items-center"><i data-lucide="file-text" class="w-4 h-4 text-teal-700 mr-2"></i>Editorial Strategy</h3>
+                    <p class="text-xs text-slate-600">Guides for first-time questers, safety protocols for female drivers, post-partum confinement nutrition guides, and dietary compliance for food catering in Malaysia.</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-2">
+                    <h3 class="font-bold text-base text-slate-900 flex items-center"><i data-lucide="scale" class="w-4 h-4 text-mauve-700 mr-2"></i>Legal Compliance</h3>
+                    <p class="text-xs text-slate-600">Covers EPF i-Saraan voluntary savings scheme, SOCSO Self-Employed (SPS) accident coverage for drivers, and LHDN Form B/BE tax filing rules.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- QUEST DETAIL MODAL -->
+    <div id="quest-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-0 sm:p-4 hidden">
+        <div class="modal-inner-container bg-white rounded-none sm:rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl relative max-h-screen sm:max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <button onclick="closeModal('quest-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <!-- WHATSAPP NOTIFICATION MODAL -->
+    <div id="whatsapp-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+        <div class="modal-inner-container bg-white rounded-2xl sm:rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl relative overflow-hidden">
+            <button onclick="closeModal('whatsapp-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex items-center space-x-2 text-whatsapp-600 mb-2">
+                <i data-lucide="message-circle" class="w-6 h-6 fill-whatsapp-500 text-whatsapp-500"></i>
+                <h3 class="font-extrabold text-slate-900 text-base sm:text-lg">Notify Owner via WhatsApp</h3>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">
+                Your application has been created! Send an instant WhatsApp alert directly to the quest owner's phone number.
+            </p>
+
+            <div class="bg-slate-100 p-3.5 rounded-2xl border border-slate-200 mb-4 font-sans text-xs">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200/80 mb-2 text-[10px] text-slate-500">
+                    <span class="font-bold text-slate-700 flex items-center"><i data-lucide="phone" class="w-3 h-3 mr-1 text-whatsapp-600"></i> WhatsApp Live Message Preview</span>
+                    <span id="wa-preview-phone" class="font-mono text-teal-800">+60 12-345 6789</span>
+                </div>
+                <div class="bg-emerald-50 text-slate-800 p-3 rounded-xl border border-emerald-200/80 leading-relaxed space-y-1 font-sans text-[11px]">
+                    <p id="wa-preview-text" class="whitespace-pre-line"></p>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2">
+                <a id="wa-direct-link" href="#" target="_blank" onclick="closeModal('whatsapp-modal')" class="flex-1 bg-whatsapp-500 hover:bg-whatsapp-600 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm text-center flex items-center justify-center space-x-2 shadow-md transition">
+                    <i data-lucide="message-circle" class="w-4 h-4 fill-white"></i>
+                    <span>Open in WhatsApp Web / App</span>
+                </a>
+                <button onclick="closeModal('whatsapp-modal')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-4 rounded-xl text-xs transition">
+                    Skip & Stay on Web
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POST QUEST MODAL WITH WHATSAPP NOTIFICATION TOGGLE -->
+    <div id="post-quest-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-0 sm:p-4 hidden">
+        <div class="modal-inner-container bg-white rounded-none sm:rounded-3xl max-w-xl w-full p-5 sm:p-7 shadow-2xl relative max-h-screen sm:max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <button onclick="closeModal('post-quest-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900 mb-1">Post a New Side Quest</h3>
+            <p class="text-xs text-slate-500 mb-4">Connect with vetted Malaysian women freelancers, drivers, and cooks.</p>
+
+            <form onsubmit="handlePostQuest(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Quest Title</label>
+                    <input type="text" id="post-title" required placeholder="e.g. Post-partum Confinement Prep or Ride to UKM" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs focus:outline-none focus:border-teal-600">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Type of Job</label>
+                        <select id="post-jobtype" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs focus:outline-none focus:border-teal-600">
+                            <option value="Post-Partum Cook">Post-Partum Cook / Confinement</option>
+                            <option value="One-Time Driver">One-Time Driver / Ride Service</option>
+                            <option value="Chef">Chef / Home Cook / Catering</option>
+                            <option value="Driver">Driver / Regular Delivery</option>
+                            <option value="Event crew">Event Crew / Usher</option>
+                            <option value="Technician">Technician / IT Support</option>
+                            <option value="Poster designer">Poster Designer / Graphic</option>
+                            <option value="Caretaker">Caretaker / Elder Care</option>
+                            <option value="Tutor">Tutor / Academic</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Payout Rate (RM)</label>
+                        <input type="text" id="post-payout" required placeholder="e.g. RM 65 / trip or RM 35 / hr" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs focus:outline-none focus:border-teal-600">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Frequency</label>
+                        <select id="post-frequency" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs focus:outline-none focus:border-teal-600">
+                            <option value="one-time">One-Time Service</option>
+                            <option value="recurring">Recurring / Part-Time</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Urgent Request?</label>
+                        <select id="post-urgent" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs focus:outline-none focus:border-teal-600">
+                            <option value="false">Standard Schedule</option>
+                            <option value="true">⚡ Urgent Request</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-slate-800 flex items-center">
+                            <i data-lucide="message-circle" class="w-4 h-4 text-whatsapp-500 mr-1.5 fill-whatsapp-500"></i>
+                            Instant WhatsApp Alerts
+                        </label>
+                        <span class="bg-whatsapp-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Recommended</span>
+                    </div>
+                    <p class="text-[10px] text-slate-600">Get an instant WhatsApp notification when an applicant applies for your quest.</p>
+                    <input type="tel" id="post-wa-phone" placeholder="e.g. +60123456789" class="w-full px-3 py-1.5 bg-white border border-emerald-200 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:border-whatsapp-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Is this a Food-Related Quest?</label>
+                    <select id="post-is-food" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs focus:outline-none focus:border-teal-600">
+                        <option value="false">No (Non-food quest)</option>
+                        <option value="true">Yes (Activates Dietary Tagging)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Quest Description</label>
+                    <textarea id="post-desc" rows="3" required placeholder="Describe duties, specific routes, or confinement dietary needs..." class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs focus:outline-none focus:border-teal-600"></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-3 rounded-xl text-xs sm:text-sm transition">
+                    Publish Side Quest
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SAVED DRAWER -->
+    <div id="saved-drawer" class="fixed inset-y-0 right-0 w-80 sm:w-96 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out border-l border-slate-200 p-5 flex flex-col justify-between">
+        <div>
+            <div class="flex items-center justify-between border-b pb-3 mb-3">
+                <h3 class="font-bold text-slate-900 text-base flex items-center">
+                    <i data-lucide="bookmark" class="w-4 h-4 text-teal-600 mr-2"></i>
+                    Saved Quests
+                </h3>
+                <button onclick="toggleSavedDrawer()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="saved-quests-list" class="space-y-2.5 overflow-y-auto max-h-[70vh] custom-scrollbar"></div>
+        </div>
+        <div class="pt-3 border-t border-slate-100">
+            <button onclick="toggleSavedDrawer()" class="w-full bg-slate-100 text-slate-700 font-semibold py-2 rounded-xl text-xs hover:bg-slate-200">
+                Close Drawer
+            </button>
+        </div>
+    </div>
+
+    <button onclick="switchTab('chathub')" class="fixed bottom-5 right-5 bg-gradient-to-r from-teal-700 to-teal-800 text-white p-3.5 sm:p-4 rounded-full shadow-2xl hover:scale-105 transition-all z-40 flex items-center space-x-2 group">
+        <i data-lucide="message-square" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+        <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 text-xs font-semibold pr-1">Applicant Chat</span>
+        <span id="floating-chat-count" class="bg-mauve-600 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">2</span>
+    </button>
+
+    <script>
+        const initialQuests = [
+            {
+                id: 'q1',
+                title: 'Post-Partum Confinement Meal Prep Cook (Halal Malay Heritage)',
+                jobType: 'Post-Partum Cook',
+                frequency: 'recurring',
+                urgent: true,
+                isFoodRelated: true,
+                payout: 'RM 40 / hr',
+                payoutRate: 40,
+                distanceKm: 4,
+                location: 'Petaling Jaya, Selangor',
+                isWFH: false,
+                client: 'Puan Intan S.',
+                clientPhone: '60123456789',
+                clientAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+                verified: true,
+                hoursPerWeek: '2 hrs/day (14 days)',
+                description: 'Looking for a warm female cook to prepare daily post-partum confinement meals (tungku herbs, red date teas, fish soup) in PJ. Must strictly follow halal guidelines.',
+                foodTags: {
+                    halal: true,
+                    noPork: true,
+                    noAlcohol: true,
+                    noBeef: true,
+                    noWuHun: false,
+                    vegan: { noEgg: false, noDairy: true, noHoney: false, noFigs: false, noOysters: false }
+                },
+                requirements: ['Post-Partum / Confinement cooking experience', 'Halal compliance']
+            },
+            {
+                id: 'q2',
+                title: 'One-Time Driver: Student Campus Drop-off to UKM Bangi',
+                jobType: 'One-Time Driver',
+                frequency: 'one-time',
+                urgent: true,
+                isFoodRelated: false,
+                payout: 'RM 65 / trip',
+                payoutRate: 65,
+                distanceKm: 12,
+                location: 'Cheras -> UKM Bangi',
+                isWFH: false,
+                client: 'Nurul Hidayah',
+                clientPhone: '60198765432',
+                clientAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+                verified: true,
+                hoursPerWeek: 'One-Time (This Sunday 8am)',
+                description: 'Need a safe, verified female driver to transport my daughter and her luggage from Cheras directly to UKM Bangi hostel entrance.',
+                foodTags: null,
+                requirements: ['Valid D License', 'Clean sedan/SUV vehicle', 'Punctual']
+            },
+            {
+                id: 'q3',
+                title: 'Traditional Chinese Post-Partum Confinement Soup Cook',
+                jobType: 'Post-Partum Cook',
+                frequency: 'recurring',
+                urgent: false,
+                isFoodRelated: true,
+                payout: 'RM 45 / hr',
+                payoutRate: 45,
+                distanceKm: 6,
+                location: 'Subang Jaya, Selangor',
+                isWFH: false,
+                client: 'Mrs. Chen',
+                clientPhone: '60161234567',
+                clientAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+                verified: true,
+                hoursPerWeek: '3 hrs/day (30 days)',
+                description: 'Prepare traditional Chinese confinement dishes, sesame oil chicken, and herbal tonic soups for 30 days post-birth. Strictly no beef (Guanyin worshiper).',
+                foodTags: {
+                    halal: false,
+                    noPork: false,
+                    noAlcohol: false,
+                    noBeef: true,
+                    noWuHun: false,
+                    vegan: { noEgg: false, noDairy: true, noHoney: false, noFigs: false, noOysters: false }
+                },
+                requirements: ['Chinese confinement cooking experience', 'Knowledge of post-natal herbal soups']
+            },
+            {
+                id: 'q4',
+                title: 'One-Time Escort & Ride: Senior Hospital Appointment at HUKM',
+                jobType: 'One-Time Driver',
+                frequency: 'one-time',
+                urgent: false,
+                isFoodRelated: false,
+                payout: 'RM 80 / trip',
+                payoutRate: 80,
+                distanceKm: 5,
+                location: 'Ampang -> HUKM Cheras',
+                isWFH: false,
+                client: 'Mei Ling T.',
+                clientPhone: '60172223344',
+                clientAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+                verified: true,
+                hoursPerWeek: 'One-Time (Thursday 9am - 12pm)',
+                description: 'Single trip ride & accompaniment. Pick up elderly mother from Ampang, drive to HUKM for specialist appointment, and return home safely.',
+                foodTags: null,
+                requirements: ['Patient & caring disposition', 'Clean driving record']
+            },
+            {
+                id: 'q5',
+                title: 'Event Catering Chef Assistant (Halal & Vegetarian)',
+                jobType: 'Chef',
+                frequency: 'recurring',
+                urgent: false,
+                isFoodRelated: true,
+                payout: 'RM 35 / hr',
+                payoutRate: 35,
+                distanceKm: 4,
+                location: 'Kuala Lumpur',
+                isWFH: false,
+                client: 'Dapur Maya Events',
+                clientPhone: '60139988776',
+                clientAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+                verified: true,
+                hoursPerWeek: '10 hrs/weekend',
+                description: 'Assist head chef preparing halal Malaysian & Chinese vegetarian buffet dishes for corporate luncheons.',
+                foodTags: {
+                    halal: true,
+                    noPork: true,
+                    noAlcohol: true,
+                    noBeef: true,
+                    noWuHun: false,
+                    vegan: { noEgg: false, noDairy: true, noHoney: true, noFigs: true, noOysters: true }
+                },
+                requirements: ['Halal food handler cert', 'Hygiene focused']
+            },
+            {
+                id: 'q6',
+                title: 'Canva Poster & Graphic Designer for Local Boutique',
+                jobType: 'Poster designer',
+                frequency: 'recurring',
+                urgent: false,
+                isFoodRelated: false,
+                payout: 'RM 30 / hr',
+                payoutRate: 30,
+                distanceKm: 0,
+                location: 'Work From Home',
+                isWFH: true,
+                client: 'Bloom Digital Studio',
+                clientPhone: '601155443322',
+                clientAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+                verified: true,
+                hoursPerWeek: '6 hrs/week',
+                description: 'Design digital posters, Instagram promo graphics, and event banners for local fashion brands.',
+                foodTags: null,
+                requirements: ['Proficient in Canva/Photoshop', 'Creative portfolio']
+            }
+        ];
+
+        let applicantsList = [
+            {
+                id: 'app_1',
+                questId: 'q1',
+                questTitle: 'Post-Partum Confinement Meal Prep Cook',
+                ownerName: 'Puan Intan S. (Quest Owner)',
+                ownerPhone: '60123456789',
+                ownerAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+                rating: '4.9 ★ (Owner)',
+                verifiedIC: true,
+                proposedRate: 'RM 40 / hr',
+                status: 'Applied 2 hrs ago',
+                unreadCount: 0,
+                hired: false,
+                messages: [
+                    { sender: 'user', text: 'Salam Puan Intan! I applied for your confinement cooking quest. I specialize in Malay confinement herbal diets.', time: '10:15 AM' },
+                    { sender: 'applicant', text: 'Waalaikumussalam! Terima kasih for applying. Are you available to start this coming Monday in PJ?', time: '10:18 AM' }
+                ]
+            },
+            {
+                id: 'app_2',
+                questId: 'q2',
+                questTitle: 'One-Time Driver: Student Campus Ride',
+                ownerName: 'Nurul Hidayah (Quest Owner)',
+                ownerPhone: '60198765432',
+                ownerAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+                rating: '5.0 ★ (Owner)',
+                verifiedIC: true,
+                proposedRate: 'RM 65 / trip',
+                status: 'Applied 1 hr ago',
+                unreadCount: 0,
+                hired: false,
+                messages: [
+                    { sender: 'user', text: 'Hi Kak Nurul! I submitted my application for the Sunday drop-off to UKM Bangi. I have a clean sedan.', time: '11:05 AM' },
+                    { sender: 'applicant', text: 'Hi there! Great to meet you. Pickup is at Taman Connaught Cheras. Is 8:00 AM good for you?', time: '11:08 AM' }
+                ]
+            }
+        ];
+
+        let quests = [...initialQuests];
+        let savedQuestIds = [];
+        let activeApplicantId = 'app_1';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyFilters();
+            calculateIncome();
+            renderApplicantChatList();
+            renderActiveChat();
+            lucide.createIcons();
+        });
+
+        function switchTab(tabName) {
+            const tabs = ['marketplace', 'chathub', 'calculator', 'community', 'blueprint'];
+            tabs.forEach(t => {
+                const viewEl = document.getElementById(`view-${t}`);
+                const navEl = document.getElementById(`nav-${t}`);
+                if (t === tabName) {
+                    viewEl.classList.remove('hidden');
+                    if (navEl) navEl.classList.add('tab-active');
+                } else {
+                    viewEl.classList.add('hidden');
+                    if (navEl) navEl.classList.remove('tab-active');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function filterJobTypeDirect(jobType) {
+            document.querySelectorAll('.job-pill').forEach(btn => {
+                if (btn.innerText.toLowerCase().includes(jobType.toLowerCase()) || (jobType === 'All' && btn.innerText.includes('All'))) {
+                    btn.classList.add('bg-white', 'text-teal-900', 'font-semibold');
+                    btn.classList.remove('bg-teal-800/80', 'text-white');
+                } else {
+                    btn.classList.remove('bg-white', 'text-teal-900', 'font-semibold');
+                    btn.classList.add('bg-teal-800/80', 'text-white');
+                }
+            });
+            document.getElementById('filter-jobtype').value = jobType;
+            applyFilters();
+        }
+
+        function isFoodContextActive() {
+            const selectedJob = document.getElementById('filter-jobtype').value;
+            return selectedJob === 'Chef' || selectedJob === 'Post-Partum Cook' || selectedJob === 'All';
+        }
+
+        function updateDietaryFilterState() {
+            const container = document.getElementById('dietary-filter-container');
+            const statusTag = document.getElementById('dietary-status-tag');
+            const notice = document.getElementById('dietary-notice');
+            const foodActive = isFoodContextActive();
+
+            if (!foodActive) {
+                container.classList.add('disabled-filter');
+                statusTag.innerText = "Disabled for Non-Food";
+                statusTag.className = "bg-slate-200 text-slate-700 text-[9px] px-2 py-0.5 rounded-full font-semibold";
+                notice.innerText = "⚠️ Applies ONLY to Food Catering & Post-Partum Cook quests.";
+                document.querySelectorAll('#dietary-controls-grid input[type="checkbox"]').forEach(cb => cb.checked = false);
+            } else {
+                container.classList.remove('disabled-filter');
+                statusTag.innerText = "Food Quests Only";
+                statusTag.className = "bg-amber-200 text-amber-900 text-[9px] px-2 py-0.5 rounded-full font-semibold";
+                notice.innerText = "Filter food quests by Muslim, Vegan, or Guanyin rules.";
+            }
+        }
+
+        function applyFilters() {
+            updateDietaryFilterState();
+
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const jobType = document.getElementById('filter-jobtype').value;
+            const frequency = document.getElementById('filter-frequency').value;
+            const priceMin = parseInt(document.getElementById('filter-price-min').value);
+            const radius = document.getElementById('filter-radius').value;
+            const wfhOnly = document.getElementById('filter-wfh-only').checked;
+            const urgentOnly = document.getElementById('filter-urgent-only').checked;
+
+            document.getElementById('price-min-label').innerText = `RM ${priceMin}`;
+
+            const isFoodContext = isFoodContextActive();
+            const dietHalal = isFoodContext && document.getElementById('diet-halal').checked;
+            const dietNoPork = isFoodContext && document.getElementById('diet-no-pork').checked;
+            const dietNoAlcohol = isFoodContext && document.getElementById('diet-no-alcohol').checked;
+            const dietNoBeef = isFoodContext && document.getElementById('diet-no-beef').checked;
+            const dietNoWuHun = isFoodContext && document.getElementById('diet-no-wuhun').checked;
+
+            const dietNoEgg = isFoodContext && document.getElementById('diet-no-egg').checked;
+            const dietNoDairy = isFoodContext && document.getElementById('diet-no-dairy').checked;
+            const dietNoHoney = isFoodContext && document.getElementById('diet-no-honey').checked;
+            const dietNoFigs = isFoodContext && document.getElementById('diet-no-figs').checked;
+            const dietNoOysters = isFoodContext && document.getElementById('diet-no-oysters').checked;
+
+            const filtered = quests.filter(q => {
+                const matchSearch = q.title.toLowerCase().includes(search) || q.description.toLowerCase().includes(search) || q.jobType.toLowerCase().includes(search) || q.location.toLowerCase().includes(search);
+                const matchJob = (jobType === 'All') ? true : q.jobType === jobType;
+                const matchFreq = (frequency === 'All') ? true : q.frequency === frequency;
+                const matchPrice = q.payoutRate >= priceMin;
+                const matchRadius = (radius === 'All') ? true : (q.distanceKm <= parseInt(radius));
+                const matchWfh = wfhOnly ? q.isWFH : true;
+                const matchUrgent = urgentOnly ? q.urgent : true;
+
+                let matchDietary = true;
+                if (q.isFoodRelated && q.foodTags) {
+                    if (dietHalal && !q.foodTags.halal) matchDietary = false;
+                    if (dietNoPork && !q.foodTags.noPork) matchDietary = false;
+                    if (dietNoAlcohol && !q.foodTags.noAlcohol) matchDietary = false;
+                    if (dietNoBeef && !q.foodTags.noBeef) matchDietary = false;
+                    if (dietNoWuHun && !q.foodTags.noWuHun) matchDietary = false;
+
+                    if (dietNoEgg && !q.foodTags.vegan.noEgg) matchDietary = false;
+                    if (dietNoDairy && !q.foodTags.vegan.noDairy) matchDietary = false;
+                    if (dietNoHoney && !q.foodTags.vegan.noHoney) matchDietary = false;
+                    if (dietNoFigs && !q.foodTags.vegan.noFigs) matchDietary = false;
+                    if (dietNoOysters && !q.foodTags.vegan.noOysters) matchDietary = false;
+                } else if (!q.isFoodRelated && (dietHalal || dietNoPork || dietNoAlcohol || dietNoBeef || dietNoWuHun || dietNoEgg || dietNoDairy || dietNoHoney || dietNoFigs || dietNoOysters)) {
+                    matchDietary = false;
+                }
+
+                return matchSearch && matchJob && matchFreq && matchPrice && matchRadius && matchWfh && matchUrgent && matchDietary;
+            });
+
+            renderQuests(filtered);
+            document.getElementById('quest-count-display').innerText = `Showing ${filtered.length} active quests`;
+        }
+
+        function resetAllFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('filter-jobtype').value = 'All';
+            document.getElementById('filter-frequency').value = 'All';
+            document.getElementById('filter-price-min').value = 0;
+            document.getElementById('filter-radius').value = 'All';
+            document.getElementById('filter-wfh-only').checked = false;
+            document.getElementById('filter-urgent-only').checked = false;
+            document.querySelectorAll('#dietary-controls-grid input[type="checkbox"]').forEach(cb => cb.checked = false);
+            filterJobTypeDirect('All');
+        }
+
+        function renderQuests(items) {
+            const container = document.getElementById('quest-grid');
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="py-12 text-center bg-white rounded-2xl border border-dashed border-slate-300">
+                        <i data-lucide="search-x" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
+                        <h4 class="font-bold text-slate-700 text-sm">No quests match criteria</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">Try relaxing dietary preferences or distance radius.</p>
+                        <button onclick="resetAllFilters()" class="mt-3 text-xs bg-teal-700 text-white font-semibold px-3 py-1.5 rounded-lg">Reset All Filters</button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = items.map(q => {
+                const isSaved = savedQuestIds.includes(q.id);
+                return `
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+                        <div>
+                            <div class="flex justify-between items-start mb-2.5 gap-2">
+                                <div class="flex flex-wrap gap-1 items-center">
+                                    <span class="bg-teal-50 text-teal-800 border border-teal-200 text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                                        ${q.jobType}
+                                    </span>
+                                    ${q.frequency === 'one-time' ? '<span class="bg-amber-100 text-amber-900 border border-amber-200 text-[9px] font-bold px-1.5 py-0.5 rounded-full">⚡ One-Time</span>' : '<span class="bg-blue-50 text-blue-800 text-[9px] font-medium px-1.5 py-0.5 rounded-full">🔄 Recurring</span>'}
+                                    ${q.urgent ? '<span class="bg-red-100 text-red-700 font-extrabold text-[9px] px-1.5 py-0.5 rounded-full animate-pulse">⚡ URGENT</span>' : ''}
+                                </div>
+                                <button onclick="toggleSaveQuest('${q.id}')" class="text-slate-400 hover:text-mauve-600 transition p-1">
+                                    <i data-lucide="bookmark" class="w-4 h-4 sm:w-5 sm:h-5 ${isSaved ? 'fill-mauve-600 text-mauve-600' : ''}"></i>
+                                </button>
+                            </div>
+
+                            <h3 onclick="openQuestModal('${q.id}')" class="font-bold text-slate-900 text-sm sm:text-base mb-1 group-hover:text-teal-700 transition cursor-pointer leading-snug">
+                                ${q.title}
+                            </h3>
+                            <div class="flex items-center space-x-1 text-[11px] text-slate-500 mb-2">
+                                <span>${q.client}</span>
+                                ${q.verified ? '<i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-teal-600"></i>' : ''}
+                            </div>
+
+                            <p class="text-xs text-slate-600 line-clamp-2 mb-3 leading-relaxed">
+                                ${q.description}
+                            </p>
+
+                            ${q.isFoodRelated && q.foodTags ? `
+                                <div class="flex flex-wrap gap-1 mb-3">
+                                    ${q.foodTags.halal ? '<span class="bg-emerald-50 text-emerald-700 text-[9px] px-1.5 py-0.5 rounded font-semibold border border-emerald-200">🌙 Halal</span>' : ''}
+                                    ${q.foodTags.noBeef ? '<span class="bg-purple-50 text-purple-700 text-[9px] px-1.5 py-0.5 rounded font-semibold border border-purple-200">📿 Guanyin / No Beef</span>' : ''}
+                                    ${q.foodTags.noWuHun ? '<span class="bg-amber-50 text-amber-800 text-[9px] px-1.5 py-0.5 rounded font-semibold border border-amber-200">🚫 No Wu Hun</span>' : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div>
+                            <div class="flex flex-wrap gap-1 text-[10px] sm:text-[11px] text-slate-600 mb-3">
+                                <span class="bg-slate-100 px-2 py-0.5 rounded"><i data-lucide="map-pin" class="w-3 h-3 inline mr-0.5 text-slate-400"></i>${q.location}</span>
+                                <span class="bg-slate-100 px-2 py-0.5 rounded"><i data-lucide="clock" class="w-3 h-3 inline mr-0.5 text-slate-400"></i>${q.hoursPerWeek}</span>
+                            </div>
+
+                            <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                                <div>
+                                    <span class="text-[9px] text-slate-400 uppercase font-semibold block">Payout</span>
+                                    <span class="text-sm sm:text-base font-extrabold text-teal-800">${q.payout}</span>
+                                </div>
+                                <div class="flex space-x-1.5">
+                                    <button onclick="openQuestModal('${q.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-2.5 py-1.5 sm:py-2 rounded-xl transition">
+                                        View Details
+                                    </button>
+                                    <button onclick="applyAndStartChat('${q.id}')" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold px-3 py-1.5 sm:py-2 rounded-xl transition flex items-center space-x-1">
+                                        <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                                        <span>Apply & Chat</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function applyAndStartChat(questId) {
+            closeModal('quest-modal');
+            const quest = quests.find(q => q.id === questId);
+            if (!quest) return;
+
+            let existingApp = applicantsList.find(a => a.questId === questId);
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            if (!existingApp) {
+                const newAppId = 'app_' + Date.now();
+                let initialMessageText = `Salam/Hello ${quest.client}! I am applying for "${quest.title}". I am available to discuss details and schedule!`;
+
+                if (quest.jobType === 'One-Time Driver') {
+                    initialMessageText = `Salam ${quest.client}! I applied for your one-time driver request (${quest.location}). Clean vehicle and valid D license ready!`;
+                } else if (quest.jobType === 'Post-Partum Cook') {
+                    initialMessageText = `Salam ${quest.client}! I applied for your post-partum cook quest. Ready to prepare traditional confinement dishes!`;
+                }
+
+                existingApp = {
+                    id: newAppId,
+                    questId: quest.id,
+                    questTitle: quest.title,
+                    ownerName: `${quest.client} (Quest Owner)`,
+                    ownerPhone: quest.clientPhone || '60123456789',
+                    ownerAvatar: quest.clientAvatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+                    rating: '5.0 ★ (Owner)',
+                    verifiedIC: quest.verified,
+                    proposedRate: quest.payout,
+                    status: 'Just Applied',
+                    unreadCount: 0,
+                    hired: false,
+                    messages: [
+                        { sender: 'user', text: initialMessageText, time: timeStr }
+                    ]
+                };
+
+                applicantsList.unshift(existingApp);
+
+                // Simulated automated reply from owner
+                setTimeout(() => {
+                    let ownerReply = `Thank you for applying! Are you available on the specified dates?`;
+                    if (quest.jobType === 'One-Time Driver') ownerReply = `Hi! Thanks for applying. Pickup is near the main road. Is your boot space clean for luggage?`;
+                    else if (quest.jobType === 'Post-Partum Cook') ownerReply = `Salam/Hi! Do you have experience with herbal confinement soups?`;
+
+                    existingApp.messages.push({
+                        sender: 'applicant',
+                        text: ownerReply,
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    });
+                    renderActiveChat();
+                }, 1200);
+            }
+
+            activeApplicantId = existingApp.id;
+            switchTab('chathub');
+            renderApplicantChatList();
+            renderActiveChat();
+            
+            // Trigger WhatsApp Modal Notification
+            triggerWhatsAppNotification(quest, existingApp);
+        }
+
+        function triggerWhatsAppNotification(quest, applicantData) {
+            const phone = quest.clientPhone || '60123456789';
+            const messageText = `Salam/Hello ${quest.client}! 👋\n\nI just applied for your side quest on HerQuest Malaysia:\n📌 *${quest.title}*\n💰 Rate: *${quest.payout}*\n📍 Location: *${quest.location}*\n\nCan we discuss the schedule and details on WhatsApp or platform chat? Thank you!`;
+            const encodedText = encodeURIComponent(messageText);
+            const waUrl = `https://wa.me/${phone}?text=${encodedText}`;
+
+            document.getElementById('wa-preview-phone').innerText = `+${phone.slice(0,2)} ${phone.slice(2,4)}-${phone.slice(4,7)} ${phone.slice(7)}`;
+            document.getElementById('wa-preview-text').innerText = messageText;
+            document.getElementById('wa-direct-link').href = waUrl;
+
+            openModal('whatsapp-modal');
+        }
+
+        function renderApplicantChatList() {
+            const container = document.getElementById('applicant-chat-list');
+            document.getElementById('active-threads-count').innerText = `${applicantsList.length} Threads`;
+
+            container.innerHTML = applicantsList.map(app => {
+                const isActive = app.id === activeApplicantId;
+                const lastMsg = app.messages[app.messages.length - 1];
+
+                return `
+                    <div onclick="selectApplicantChat('${app.id}')" class="p-3 cursor-pointer hover:bg-teal-50/50 transition flex items-start space-x-2.5 ${isActive ? 'bg-teal-50/80 border-l-4 border-teal-700' : ''}">
+                        <div class="relative">
+                            <img src="${app.ownerAvatar}" alt="${app.ownerName}" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border border-slate-200">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-baseline mb-0.5">
+                                <h4 class="text-xs font-bold text-slate-900 truncate">${app.ownerName}</h4>
+                                <span class="text-[9px] text-slate-400">${app.status}</span>
+                            </div>
+                            <p class="text-[10px] font-semibold text-teal-700 truncate mb-0.5">${app.questTitle}</p>
+                            <p class="text-[10px] text-slate-500 truncate">
+                                ${lastMsg ? (lastMsg.sender === 'user' ? 'You: ' + lastMsg.text : lastMsg.text) : 'No messages'}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function selectApplicantChat(appId) {
+            activeApplicantId = appId;
+            const app = applicantsList.find(a => a.id === appId);
+            if (app) app.unreadCount = 0;
+            renderApplicantChatList();
+            renderActiveChat();
+        }
+
+        function renderActiveChat() {
+            const container = document.getElementById('active-chat-container');
+            const app = applicantsList.find(a => a.id === activeApplicantId);
+
+            if (!app) {
+                container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">Select an active application thread to start messaging the quest owner</div>`;
+                return;
+            }
+
+            const waMsg = encodeURIComponent(`Salam ${app.ownerName}! Following up on my HerQuest application for "${app.questTitle}".`);
+            const waUrl = `https://wa.me/${app.ownerPhone}?text=${waMsg}`;
+
+            container.innerHTML = `
+                <div class="p-3.5 border-b border-slate-200 flex items-center justify-between bg-white z-10 flex-wrap gap-2">
+                    <div class="flex items-center space-x-2.5">
+                        <img src="${app.ownerAvatar}" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border border-slate-200">
+                        <div>
+                            <div class="flex items-center space-x-1.5">
+                                <h3 class="font-bold text-slate-900 text-xs sm:text-sm">${app.ownerName}</h3>
+                                ${app.verifiedIC ? '<span class="bg-teal-100 text-teal-800 text-[9px] px-1.5 py-0.5 rounded-full font-semibold">Verified Client</span>' : ''}
+                            </div>
+                            <p class="text-[11px] text-slate-500">Quest: <strong class="text-teal-700">${app.questTitle}</strong> (${app.proposedRate})</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <a href="${waUrl}" target="_blank" class="bg-whatsapp-500 hover:bg-whatsapp-600 text-white text-xs font-bold px-2.5 py-1.5 rounded-xl transition flex items-center space-x-1 shadow-sm">
+                            <i data-lucide="message-circle" class="w-3.5 h-3.5 fill-white"></i>
+                            <span class="hidden sm:inline">WhatsApp Owner</span>
+                        </a>
+                        ${app.hired ? 
+                            '<span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-xl">Hired & Confirmed</span>' :
+                            `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-1 rounded-xl">In Discussion</span>`
+                        }
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 px-3 py-1.5 border-b border-amber-200 text-[10px] text-amber-900 flex items-center justify-between">
+                    <span class="truncate">🛡️ Discuss terms, routes, or menus here. WhatsApp notification link activated.</span>
+                </div>
+
+                <div id="chat-messages-body" class="flex-1 p-3.5 overflow-y-auto custom-scrollbar space-y-2.5 bg-slate-50/40 max-h-[320px] sm:max-h-[380px]">
+                    ${app.messages.map(m => `
+                        <div class="flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}">
+                            <div class="max-w-[85%] sm:max-w-md px-3.5 py-2 rounded-2xl text-xs shadow-sm ${m.sender === 'user' ? 'chat-bubble-user' : 'chat-bubble-applicant'}">
+                                <p class="leading-relaxed">${m.text}</p>
+                                <span class="text-[9px] ${m.sender === 'user' ? 'text-teal-100' : 'text-slate-400'} block text-right mt-0.5">${m.time}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="p-3 border-t border-slate-200 bg-white space-y-2">
+                    <div class="flex items-center gap-1 overflow-x-auto pb-1 text-[10px]">
+                        <button onclick="sendQuickChip('Yes, I am available at that exact time!')" class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full whitespace-nowrap">✅ Yes, available!</button>
+                        <button onclick="sendQuickChip('Can you send the exact pickup address / location?')" class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full whitespace-nowrap">📍 Send location details</button>
+                        <button onclick="sendQuickChip('I can prepare Halal / Guanyin beef-free as requested!')" class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full whitespace-nowrap">🥗 Dietary confirmed</button>
+                    </div>
+
+                    <form onsubmit="handleSendChatMessage(event)" class="flex items-center space-x-2">
+                        <input type="text" id="chat-text-input" placeholder="Type your message to quest owner..." required class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-teal-600 focus:bg-white transition">
+                        <button type="submit" class="bg-teal-700 hover:bg-teal-800 text-white p-2 rounded-xl transition">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                        </button>
+                    </form>
+                </div>
+            `;
+
+            lucide.createIcons();
+            const msgBody = document.getElementById('chat-messages-body');
+            if (msgBody) msgBody.scrollTop = msgBody.scrollHeight;
+        }
+
+        function handleSendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-text-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const app = applicantsList.find(a => a.id === activeApplicantId);
+            if (!app) return;
+
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            app.messages.push({ sender: 'user', text: text, time: timeStr });
+            input.value = '';
+            renderActiveChat();
+
+            // Automated owner reply
+            setTimeout(() => {
+                let autoReply = "Got it! Thanks for confirming. I will finalize the booking with you shortly.";
+                if (app.questTitle.includes('Driver')) autoReply = "Perfect! I will share the exact pin location via chat on the day of the trip.";
+                else if (app.questTitle.includes('Cook')) autoReply = "Sounds great. Looking forward to tasting the dishes!";
+                
+                app.messages.push({ sender: 'applicant', text: autoReply, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
+                renderActiveChat();
+            }, 1400);
+        }
+
+        function sendQuickChip(text) {
+            document.getElementById('chat-text-input').value = text;
+        }
+
+        function openQuestModal(id) {
+            const quest = quests.find(q => q.id === id);
+            if (!quest) return;
+
+            const isSaved = savedQuestIds.includes(quest.id);
+            const content = document.getElementById('modal-content');
+
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-teal-100 text-teal-800 font-semibold px-2.5 py-0.5 rounded-full text-xs">${quest.jobType}</span>
+                        <span class="bg-amber-100 text-amber-900 font-bold px-2.5 py-0.5 rounded-full text-xs">${quest.frequency === 'one-time' ? '⚡ One-Time' : '🔄 Recurring'}</span>
+                    </div>
+
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mb-1">${quest.title}</h2>
+                        <div class="flex items-center space-x-1.5 text-xs text-slate-500">
+                            <span class="font-semibold text-slate-700">${quest.client}</span>
+                            <span class="bg-emerald-100 text-emerald-800 font-medium px-1.5 py-0.5 rounded text-[10px]">Verified Client</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 p-3 bg-slate-50 rounded-xl text-xs">
+                        <div>
+                            <span class="text-slate-400 block text-[9px] uppercase font-semibold">Payout</span>
+                            <span class="text-xs sm:text-sm font-bold text-teal-800">${quest.payout}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[9px] uppercase font-semibold">Location</span>
+                            <span class="text-xs font-medium text-slate-700 truncate block">${quest.location}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[9px] uppercase font-semibold">Distance</span>
+                            <span class="text-xs font-medium text-slate-700">${quest.distanceKm} km</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-xs mb-1">Quest Description</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">${quest.description}</p>
+                    </div>
+
+                    <div class="flex items-center space-x-2 pt-3 border-t">
+                        <button onclick="toggleSaveQuest('${quest.id}'); openQuestModal('${quest.id}')" class="p-2.5 border rounded-xl text-slate-600">
+                            <i data-lucide="bookmark" class="w-5 h-5 ${isSaved ? 'fill-mauve-600 text-mauve-600' : ''}"></i>
+                        </button>
+                        <button onclick="applyAndStartChat('${quest.id}')" class="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2.5 rounded-xl text-xs sm:text-sm transition text-center flex items-center justify-center space-x-1.5">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span>Apply & Start Discussion (+ WhatsApp Alert)</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            openModal('quest-modal');
+            lucide.createIcons();
+        }
+
+        function toggleSaveQuest(id) {
+            if (savedQuestIds.includes(id)) {
+                savedQuestIds = savedQuestIds.filter(i => i !== id);
+            } else {
+                savedQuestIds.push(id);
+            }
+            updateSavedDrawer();
+            applyFilters();
+        }
+
+        function updateSavedDrawer() {
+            const badge = document.getElementById('saved-count-badge');
+            badge.innerText = savedQuestIds.length;
+            if (savedQuestIds.length > 0) badge.classList.remove('hidden');
+            else badge.classList.add('hidden');
+
+            const list = document.getElementById('saved-quests-list');
+            if (savedQuestIds.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No saved quests yet.</p>`;
+                return;
+            }
+
+            const savedObjects = quests.filter(q => savedQuestIds.includes(q.id));
+            list.innerHTML = savedObjects.map(q => `
+                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between">
+                    <div>
+                        <h4 class="font-bold text-xs text-slate-800">${q.title}</h4>
+                        <span class="text-[10px] text-teal-700 font-medium">${q.payout}</span>
+                    </div>
+                    <button onclick="toggleSaveQuest('${q.id}')" class="text-slate-400 hover:text-red-500 p-1">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function toggleSavedDrawer() {
+            document.getElementById('saved-drawer').classList.toggle('translate-x-full');
+        }
+
+        function calculateIncome() {
+            const hours = parseInt(document.getElementById('calc-hours').value);
+            const rate = parseInt(document.getElementById('calc-rate').value);
+            const includeEpf = document.getElementById('calc-isaraan').checked;
+            const includeSocso = document.getElementById('calc-socso').checked;
+
+            document.getElementById('hours-val').innerText = `${hours} hrs/week`;
+            document.getElementById('rate-val').innerText = `RM ${rate} / hr`;
+
+            const grossMonthly = hours * rate * 4;
+            const epfDeduction = includeEpf ? Math.round(grossMonthly * 0.15) : 0;
+            const epfGovMatch = includeEpf ? Math.min(Math.round(epfDeduction * 0.15), 41) : 0;
+            const socsoDeduction = includeSocso ? 13.10 : 0;
+
+            const netMonthly = grossMonthly - epfDeduction - socsoDeduction;
+            const annualGross = grossMonthly * 12;
+
+            document.getElementById('res-gross-month').innerText = `RM ${grossMonthly.toLocaleString()}`;
+            document.getElementById('res-epf').innerText = `RM ${epfDeduction} / mo`;
+            document.getElementById('res-epf-gov').innerText = includeEpf ? `+RM ${epfGovMatch} Gov Match` : 'Not Enrolled';
+            document.getElementById('res-socso').innerText = includeSocso ? `RM ${socsoDeduction.toFixed(2)} / mo` : 'RM 0.00';
+            document.getElementById('res-net').innerText = `RM ${netMonthly.toFixed(2)}`;
+            document.getElementById('res-annual').innerText = `RM ${annualGross.toLocaleString()}`;
+
+            const taxAlert = document.getElementById('tax-alert');
+            if (annualGross > 34000) {
+                taxAlert.className = "mt-4 p-3 rounded-xl text-xs bg-amber-50 text-amber-900 border border-amber-200 flex items-start space-x-2";
+                taxAlert.innerHTML = `<i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i><span>Annual gross (RM ${annualGross.toLocaleString()}) reaches standard tax filing bracket under LHDN Form B/BE.</span>`;
+            } else {
+                taxAlert.className = "mt-4 p-3 rounded-xl text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-start space-x-2";
+                taxAlert.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"></i><span>Within tax-free threshold for single individuals earning under RM34,000/year in Malaysia.</span>`;
+            }
+            lucide.createIcons();
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function handlePostQuest(e) {
+            e.preventDefault();
+            const title = document.getElementById('post-title').value;
+            const jobType = document.getElementById('post-jobtype').value;
+            const payout = document.getElementById('post-payout').value;
+            const frequency = document.getElementById('post-frequency').value;
+            const urgent = document.getElementById('post-urgent').value === 'true';
+            const isFood = document.getElementById('post-is-food').value === 'true';
+            const phone = document.getElementById('post-wa-phone').value || '60123456789';
+            const desc = document.getElementById('post-desc').value;
+
+            const newQuest = {
+                id: 'q_' + Date.now(),
+                title: title,
+                jobType: jobType,
+                frequency: frequency,
+                urgent: urgent,
+                isFoodRelated: isFood,
+                payout: payout,
+                payoutRate: 30,
+                distanceKm: 5,
+                location: 'Kuala Lumpur',
+                isWFH: false,
+                client: 'Verified Community Member',
+                clientPhone: phone.replace(/[^0-9]/g, ''),
+                clientAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+                verified: true,
+                hoursPerWeek: frequency === 'one-time' ? 'One-Time Task' : 'Flexible Hours',
+                description: desc,
+                foodTags: isFood ? { halal: true, noPork: true, noAlcohol: true, noBeef: false, noWuHun: false, vegan: { noEgg: false, noDairy: false, noHoney: false, noFigs: false, noOysters: false } } : null,
+                requirements: ['Responsible', 'Punctual']
+            };
+
+            quests.unshift(newQuest);
+            closeModal('post-quest-modal');
+            applyFilters();
+            showToast('New side-quest created with WhatsApp alerts active!');
+            e.target.reset();
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 bg-teal-900 text-white px-3.5 py-2.5 rounded-xl shadow-xl border border-teal-700 text-xs font-semibold z-50 flex items-center space-x-2 animate-bounce';
+            toast.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-teal-300"></i><span>${message}</span>`;
+            document.body.appendChild(toast);
+            lucide.createIcons();
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
