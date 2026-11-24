@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { getBrowserSupabase } from '../../lib/supabase';
+import { getApiBaseUrl } from '../../lib/api';
 
 type AuthGateProps = {
   children: ReactNode;
@@ -62,9 +63,61 @@ export default function AuthGate({ children }: AuthGateProps) {
         }
 
         if (!isCurrent) return;
+        let verifiedAccessToken = accessToken;
         if ('session' in result.data && result.data.session) {
-          localStorage.setItem('herquest_token', result.data.session.access_token);
+          verifiedAccessToken = result.data.session.access_token;
+          localStorage.setItem('herquest_token', verifiedAccessToken);
           localStorage.setItem('herquest_refresh_token', result.data.session.refresh_token);
+        }
+
+        const profileResponse = await fetch(`${getApiBaseUrl()}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${verifiedAccessToken}` },
+        });
+        const profileResult = await profileResponse.json() as {
+          data?: { profileComplete?: boolean; mykad_verified?: string };
+          message?: string;
+        };
+        if (profileResponse.status === 401) {
+          clearStoredSession();
+          redirectToLogin();
+          return;
+        }
+        if (!profileResponse.ok || !profileResult.data) {
+          throw new Error(profileResult.message || 'Unable to load your profile.');
+        }
+
+        const profileRejected = profileResult.data.mykad_verified === 'rejected';
+        const profileIncomplete = profileResult.data.profileComplete !== true;
+        if (profileRejected || profileIncomplete) {
+          if (pathname !== '/profile') {
+            sessionStorage.setItem(
+              'herquest_profile_next',
+              `${window.location.pathname}${window.location.search}`,
+            );
+            router.replace('/profile');
+            return;
+          }
+          setStatus('allowed');
+          return;
+        }
+
+        if (pathname === '/profile') {
+          const requestedPath = sessionStorage.getItem('herquest_profile_next');
+          sessionStorage.removeItem('herquest_profile_next');
+          if (requestedPath?.startsWith('/')) {
+            const destination = new URL(requestedPath, window.location.origin);
+            if (
+              destination.origin === window.location.origin
+              && destination.pathname !== '/profile'
+              && destination.pathname !== '/login'
+              && destination.pathname !== '/signup'
+            ) {
+              router.replace(`${destination.pathname}${destination.search}${destination.hash}`);
+              return;
+            }
+          }
+          router.replace('/');
+          return;
         }
         setStatus('allowed');
       } catch {

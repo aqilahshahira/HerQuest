@@ -1119,6 +1119,18 @@ input {
   background: #ecfdf5;
 }
 
+.mykad-consent {
+  grid-template-columns: auto 1fr !important;
+  align-items: start;
+  gap: 0.65rem !important;
+  font-weight: 500 !important;
+}
+
+.mykad-consent input {
+  margin-top: 0.25rem;
+  accent-color: var(--primary);
+}
+
 .dietary-group:nth-of-type(3) {
   border-color: #fde68a;
   background: #fffbeb;

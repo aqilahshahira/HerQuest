@@ -24,6 +24,7 @@ export interface UserProfile {
     role: UserRole;
     mykad_verified: VerificationStatus;
     mykad_hash: string | null;
+    mykad_consent_at: string | null;
     profile_avatar_url: string | null;
     bio: string | null;
     state: string | null;

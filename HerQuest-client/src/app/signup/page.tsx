@@ -1,11 +1,13 @@
 "use client";
 
 import Link from 'next/link';
-import { FormEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState, type FormEvent } from 'react';
 import HerQuestNav from '../components/HerQuestNav';
 import { getApiBaseUrl } from '../../lib/api';
 
 export default function SignupPage() {
+  const router = useRouter();
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -29,6 +31,11 @@ export default function SignupPage() {
       if (!response.ok) throw new Error(result.message || 'Sign up failed.');
       if (result.data.session?.access_token) {
         localStorage.setItem('herquest_token', result.data.session.access_token);
+        if (result.data.session.refresh_token) {
+          localStorage.setItem('herquest_refresh_token', result.data.session.refresh_token);
+        }
+        router.replace('/profile');
+        return;
       }
       setMessage(result.data.session ? 'Account created successfully.' : 'Account created. Check your email to confirm it.');
     } catch (error) {

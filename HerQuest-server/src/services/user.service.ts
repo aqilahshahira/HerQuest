@@ -18,4 +18,20 @@ export const userService = {
             .select("*")
             .single();
     },
+
+    async completeOnboarding(
+        userId: string,
+        profile: Pick<
+            UserProfile,
+            "full_name" | "phone_number" | "mykad_hash" | "mykad_verified" | "mykad_consent_at"
+        >,
+    ) {
+        return getSupabaseAdmin()
+            .from("users")
+            .update(profile)
+            .eq("id", userId)
+            .is("mykad_hash", null)
+            .select("*")
+            .single();
+    },
 };

@@ -80,5 +80,6 @@ router.post("/logout", isAuthenticated, asyncHandler(async (req, res) => {
 
 router.get("/me", isAuthenticated, usersController.profile);
 router.patch("/me", isAuthenticated, usersController.updateProfile);
+router.post("/me/onboarding", isAuthenticated, usersController.completeOnboarding);
 
 export default router;

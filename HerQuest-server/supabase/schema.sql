@@ -26,6 +26,7 @@ CREATE TABLE users (
     role user_role NOT NULL DEFAULT 'both',
     mykad_verified verification_status NOT NULL DEFAULT 'unverified',
     mykad_hash VARCHAR(255),
+    mykad_consent_at TIMESTAMPTZ,
     profile_avatar_url TEXT,
     bio TEXT,
 
