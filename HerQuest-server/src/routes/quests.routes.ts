@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { isAuthenticated } from "../middleware/auth.middleware";
+import { isAuthenticated, requireCompleteProfile } from "../middleware/auth.middleware";
 import asyncHandler from "../utils/asyncHandler";
 import HttpError from "../utils/httpError";
 import { objectBody, textField } from "../utils/input";
@@ -23,7 +23,7 @@ router.get("/:id", asyncHandler(async (req, res) => {
     res.json({ success: true, data });
 }));
 
-router.post("/", isAuthenticated, asyncHandler(async (req, res) => {
+router.post("/", isAuthenticated, requireCompleteProfile, asyncHandler(async (req, res) => {
     const body = objectBody(req.body);
     const quest = {
         owner_id: req.auth!.userId,

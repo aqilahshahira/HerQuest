@@ -16,7 +16,6 @@ function profileResponse(profile: {
   role: string;
   mykad_verified: string;
   mykad_hash: string | null;
-  mykad_consent_at: string | null;
   profile_avatar_url: string | null;
   bio: string | null;
   state: string | null;
@@ -100,9 +99,13 @@ export const completeOnboarding = asyncHandler(async (req, res) => {
   if (!mykadNumber) {
     throw new HttpError(400, "Enter a valid 12-digit MyKad number.");
   }
-  const secret = process.env.MYKAD_HASH_SECRET?.trim();
+  const configuredSecret = process.env.MYKAD_HASH_SECRET?.trim();
+  const secret =
+    configuredSecret && !configuredSecret.includes("replace_with")
+      ? configuredSecret
+      : process.env.SUPABASE_SECRET_KEY?.trim();
   if (!secret || Buffer.byteLength(secret) < 32) {
-    throw new HttpError(503, "MyKad verification is not configured. Please contact customer service.");
+    throw new HttpError(503, "MyKad verification is not configured on the API server.");
   }
 
   const userId = (req as typeof req & { auth: { userId: string } }).auth.userId;
@@ -119,7 +122,6 @@ export const completeOnboarding = asyncHandler(async (req, res) => {
     phone_number: phoneNumber,
     mykad_hash: mykadHash,
     mykad_verified: isRejected ? "rejected" : "pending",
-    mykad_consent_at: new Date().toISOString(),
   });
   if (error?.code === "23505") {
     throw new HttpError(409, "That phone number is already associated with an account.");

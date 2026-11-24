@@ -26,7 +26,6 @@ CREATE TABLE users (
     role user_role NOT NULL DEFAULT 'both',
     mykad_verified verification_status NOT NULL DEFAULT 'unverified',
     mykad_hash VARCHAR(255),
-    mykad_consent_at TIMESTAMPTZ,
     profile_avatar_url TEXT,
     bio TEXT,
 
@@ -262,6 +261,7 @@ LEFT JOIN public.quest_dietary_specs d ON d.quest_id = q.id
 WHERE q.status = 'open';
 
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT USAGE ON SCHEMA public TO service_role;
 REVOKE ALL ON TABLE public.users, public.quests, public.quest_dietary_specs,
     public.applications, public.conversations, public.messages, public.bookmarks,
     public.whatsapp_notifications, public.quest_directory
@@ -282,6 +282,12 @@ GRANT SELECT ON public.conversations TO authenticated;
 GRANT SELECT, INSERT ON public.messages TO authenticated;
 GRANT SELECT, INSERT, DELETE ON public.bookmarks TO authenticated;
 GRANT SELECT ON public.whatsapp_notifications TO authenticated;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO service_role;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+    GRANT ALL PRIVILEGES ON TABLES TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+    GRANT ALL PRIVILEGES ON SEQUENCES TO service_role;
 CREATE INDEX idx_users_state_city ON users(state, city);
 CREATE INDEX idx_quests_open_created ON quests(created_at DESC) WHERE status = 'open';
 CREATE INDEX idx_quests_owner_status ON quests(owner_id, status);

@@ -23,7 +23,7 @@ export const userService = {
         userId: string,
         profile: Pick<
             UserProfile,
-            "full_name" | "phone_number" | "mykad_hash" | "mykad_verified" | "mykad_consent_at"
+            "full_name" | "phone_number" | "mykad_hash" | "mykad_verified"
         >,
     ) {
         return getSupabaseAdmin()

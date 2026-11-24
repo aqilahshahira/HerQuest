@@ -10,6 +10,7 @@ declare global {
                 userId: string;
                 email: string;
                 role: string;
+                profileComplete: boolean;
             };
         }
     }
@@ -26,7 +27,7 @@ export const isAuthenticated: RequestHandler = asyncHandler(async (req, _res, ne
     const supabaseAdmin = getSupabaseAdmin();
     const { data: existingProfile, error: profileError } = await supabaseAdmin
         .from("users")
-        .select("id, email, role")
+        .select("id, email, role, full_name, phone_number, mykad_hash, mykad_verified")
         .eq("id", data.user.id)
         .maybeSingle();
 
@@ -47,7 +48,7 @@ export const isAuthenticated: RequestHandler = asyncHandler(async (req, _res, ne
                 email: data.user.email ?? null,
                 full_name: fullName,
             }, { onConflict: "id" })
-            .select("id, email, role")
+            .select("id, email, role, full_name, phone_number, mykad_hash, mykad_verified")
             .single();
         if (createError) throw new HttpError(503, "Unable to create the user profile.");
         profile = createdProfile;
@@ -57,6 +58,20 @@ export const isAuthenticated: RequestHandler = asyncHandler(async (req, _res, ne
         userId: profile.id,
         email: profile.email,
         role: profile.role,
+        profileComplete: Boolean(
+            profile.full_name?.trim()
+            && profile.phone_number
+            && profile.mykad_hash
+            && profile.mykad_verified !== "rejected"
+        ),
     };
     next();
 });
+
+export const requireCompleteProfile: RequestHandler = (req, _res, next) => {
+    if (!req.auth?.profileComplete) {
+        next(new HttpError(403, "Complete your profile before submitting or posting a quest."));
+        return;
+    }
+    next();
+};

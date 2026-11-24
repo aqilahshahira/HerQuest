@@ -182,7 +182,8 @@ export default function Home() {
   async function applyToQuest(quest: QuestCard) {
     const token = localStorage.getItem('herquest_token');
     if (!token) {
-      window.location.assign('/login');
+      const next = `${window.location.pathname}${window.location.search}`;
+      window.location.assign(`/login?next=${encodeURIComponent(next)}`);
       return;
     }
 
@@ -197,6 +198,14 @@ export default function Home() {
         body: JSON.stringify({ questId: quest.id }),
       });
       const result = await response.json() as { message?: string };
+      if (response.status === 403 && result.message?.includes('Complete your profile')) {
+        sessionStorage.setItem(
+          'herquest_profile_next',
+          `${window.location.pathname}${window.location.search}`,
+        );
+        router.push('/profile');
+        return;
+      }
       if (!response.ok) throw new Error(result.message || 'Unable to submit application.');
       sessionStorage.setItem('herquest_selected_application_quest', quest.title);
       router.push('/chathub');

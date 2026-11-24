@@ -149,6 +149,14 @@ export default function HerQuestNav({ active = 'marketplace' }: HerQuestNavProps
       };
 
       if (!response.ok) {
+        if (response.status === 403 && result.message?.includes('Complete your profile')) {
+          sessionStorage.setItem(
+            'herquest_profile_next',
+            `${window.location.pathname}${window.location.search}`,
+          );
+          router.push('/profile');
+          return;
+        }
         throw new Error(result.message || 'Unable to publish the quest.');
       }
       if (!result.data?.id) {
@@ -196,7 +204,8 @@ export default function HerQuestNav({ active = 'marketplace' }: HerQuestNavProps
             <button type="button" className="post-button" onClick={() => {
               const token = localStorage.getItem('herquest_token');
               if (!token) {
-                window.alert('Please login first to post a quest');
+                const next = `${window.location.pathname}${window.location.search}`;
+                router.push(`/login?next=${encodeURIComponent(next)}`);
                 return;
               }
               setFormMessage('');

@@ -37,6 +37,7 @@ export default function SignupPage() {
         router.replace('/profile');
         return;
       }
+      sessionStorage.setItem('herquest_login_next', '/profile');
       setMessage(result.data.session ? 'Account created successfully.' : 'Account created. Check your email to confirm it.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Sign up failed.');
@@ -46,7 +47,7 @@ export default function SignupPage() {
   }
 
   function handleGoogleSignup() {
-    sessionStorage.setItem('herquest_login_next', '/');
+    sessionStorage.setItem('herquest_login_next', '/profile');
     window.location.assign(`${getApiBaseUrl()}/api/auth/google`);
   }
 
