@@ -14,7 +14,7 @@ function getClientOrigin(): string {
         if (productionOrigin) return productionOrigin;
         throw new HttpError(503, "Set CLIENT_URL to the deployed HTTPS application URL.");
     }
-    return origins[0] || "http://localhost:3000";
+    return origins.find((origin) => origin.startsWith("http://")) || "http://localhost:3000";
 }
 
 router.get("/google", asyncHandler(async (_req, res) => {

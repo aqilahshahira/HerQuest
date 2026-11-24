@@ -11,10 +11,14 @@ import errorHandler from "./middleware/error.middleware";
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
+const configuredClientOrigins = process.env.CLIENT_URL?.split(",").map((value) => value.trim()).filter(Boolean) ?? [];
+const clientOrigins = process.env.NODE_ENV === "production"
+    ? configuredClientOrigins
+    : [...new Set([...configuredClientOrigins, "http://localhost:3000", "http://127.0.0.1:3000"])];
 
 app.use(helmet());
 app.use(cors({
-    origin: process.env.CLIENT_URL?.split(",").map((value) => value.trim()) || "http://localhost:3000",
+    origin: clientOrigins.length ? clientOrigins : "http://localhost:3000",
     credentials: true,
 }));
 app.use(express.json({ limit: "1mb" }));

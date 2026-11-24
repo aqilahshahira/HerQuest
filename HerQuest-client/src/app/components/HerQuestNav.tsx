@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState, type FormEvent } from 'react';
 import { getApiBaseUrl } from '../../lib/api';
+import { getBrowserSupabase } from '../../lib/supabase';
 
 type HerQuestNavProps = {
   active?: string;
@@ -32,11 +34,75 @@ type CreatedQuest = {
   created_at: string;
 };
 
+type UserProfile = {
+  id: string;
+  full_name: string;
+  email: string | null;
+  role: string;
+};
+
 export default function HerQuestNav({ active = 'marketplace' }: HerQuestNavProps) {
+  const router = useRouter();
   const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formMessage, setFormMessage] = useState('');
   const [requiresLogin, setRequiresLogin] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [profileMessage, setProfileMessage] = useState('');
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  useEffect(() => {
+    let isCurrent = true;
+    const token = localStorage.getItem('herquest_token');
+    if (!token) return;
+
+    setIsAuthenticated(true);
+    async function loadProfile() {
+      try {
+        const response = await fetch(`${getApiBaseUrl()}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const result = await response.json() as {
+          data?: UserProfile;
+          message?: string;
+        };
+        if (!response.ok) throw new Error(result.message || 'Unable to load your profile.');
+        if (!result.data?.id) throw new Error('The server did not return your profile.');
+        if (isCurrent) setUserProfile(result.data);
+      } catch (error) {
+        if (isCurrent) {
+          setProfileMessage(error instanceof Error ? error.message : 'Unable to load your profile.');
+        }
+      }
+    }
+
+    void loadProfile();
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
+  async function handleLogout() {
+    setIsLoggingOut(true);
+    setProfileMessage('');
+    try {
+      const supabase = getBrowserSupabase();
+      if (supabase) {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+      }
+      localStorage.removeItem('herquest_token');
+      localStorage.removeItem('herquest_refresh_token');
+      setIsAuthenticated(false);
+      setUserProfile(null);
+      router.replace('/login');
+    } catch (error) {
+      setProfileMessage(error instanceof Error ? error.message : 'Unable to log out.');
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }
 
   async function handlePostQuest(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -139,12 +205,32 @@ export default function HerQuestNav({ active = 'marketplace' }: HerQuestNavProps
             }}>
               <span aria-hidden="true">＋</span> Post Quest
             </button>
-            <Link href="/login" className="auth-button login-button">
-              Login
-            </Link>
-            <Link href="/signup" className="auth-button signup-button">
-              Sign Up
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <span className="account-profile" aria-label="Signed-in user information">
+                  <strong>{userProfile?.full_name || 'Loading profile...'}</strong>
+                  {userProfile?.email && <small>{userProfile.email}</small>}
+                  {profileMessage && <small className="profile-error" role="status">{profileMessage}</small>}
+                </span>
+                <button
+                  type="button"
+                  className="auth-button login-button"
+                  onClick={() => void handleLogout()}
+                  disabled={isLoggingOut}
+                >
+                  {isLoggingOut ? 'Logging out...' : 'Log out'}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="auth-button login-button">
+                  Login
+                </Link>
+                <Link href="/signup" className="auth-button signup-button">
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>

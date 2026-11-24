@@ -113,6 +113,35 @@ input {
   flex-shrink: 0;
 }
 
+.account-profile {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 150px;
+  color: var(--primary-dark);
+  line-height: 1.25;
+}
+
+.account-profile strong,
+.account-profile small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-profile strong {
+  font-size: 0.8rem;
+}
+
+.account-profile small {
+  font-size: 0.68rem;
+}
+
+.account-profile .profile-error {
+  color: #b91c1c;
+  white-space: normal;
+}
+
 .auth-button {
   display: inline-flex;
   align-items: center;
