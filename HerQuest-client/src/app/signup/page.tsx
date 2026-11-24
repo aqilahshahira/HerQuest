@@ -38,6 +38,11 @@ export default function SignupPage() {
     }
   }
 
+  function handleGoogleSignup() {
+    sessionStorage.setItem('herquest_login_next', '/');
+    window.location.assign(`${getApiBaseUrl()}/api/auth/google`);
+  }
+
   return (
     <>
       <HerQuestNav />
@@ -64,6 +69,16 @@ export default function SignupPage() {
               {loading ? 'Creating account...' : 'Sign Up'}
             </button>
           </form>
+
+          <div className="auth-divider"><span>or</span></div>
+          <button
+            type="button"
+            className="google-login-button"
+            onClick={handleGoogleSignup}
+          >
+            <span className="google-mark" aria-hidden="true">G</span>
+            Sign up with Google
+          </button>
           {message && <p className="auth-message" role="status">{message}</p>}
 
           <p className="auth-switch">

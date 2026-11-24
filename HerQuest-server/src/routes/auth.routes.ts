@@ -3,21 +3,24 @@ import { isAuthenticated } from "../middleware/auth.middleware";
 import asyncHandler from "../utils/asyncHandler";
 import HttpError from "../utils/httpError";
 import { objectBody, textField } from "../utils/input";
-import { authService, userService } from "../services";
+import { authService } from "../services";
+import * as usersController from "../controllers/users.controller";
 
 const router = Router();
 function getClientOrigin(): string {
-    return process.env.CLIENT_URL?.split(",")[0]?.trim() || "http://localhost:3000";
+    const origins = process.env.CLIENT_URL?.split(",").map((origin) => origin.trim()).filter(Boolean) ?? [];
+    if (process.env.NODE_ENV === "production") {
+        const productionOrigin = origins.find((origin) => origin.startsWith("https://"));
+        if (productionOrigin) return productionOrigin;
+        throw new HttpError(503, "Set CLIENT_URL to the deployed HTTPS application URL.");
+    }
+    return origins[0] || "http://localhost:3000";
 }
 
 router.get("/google", asyncHandler(async (_req, res) => {
-    const redirectTo = new URL("/login", getClientOrigin()).toString();
-    const { data, error } = await authService.signInWithGoogle(redirectTo);
-    if (error || !data.url) {
-        console.error("[Google OAuth] Supabase OAuth request failed.", error?.message);
-        throw new HttpError(503, "Google login is unavailable. Please try again.");
-    }
-    res.redirect(data.url);
+    const loginUrl = new URL("/login", getClientOrigin());
+    loginUrl.searchParams.set("provider", "google");
+    res.redirect(loginUrl.toString());
 }));
 
 router.post("/signup", asyncHandler(async (req, res) => {
@@ -75,26 +78,7 @@ router.post("/logout", isAuthenticated, asyncHandler(async (req, res) => {
     res.json({ success: true, message: "Logged out successfully." });
 }));
 
-router.get("/me", isAuthenticated, asyncHandler(async (req, res) => {
-    const { data, error } = await userService.getById(req.auth!.userId);
-    if (error) throw new HttpError(503, "Unable to load the user profile.");
-    res.json({ success: true, data });
-}));
-
-router.patch("/me", isAuthenticated, asyncHandler(async (req, res) => {
-    const body = objectBody(req.body);
-    const allowedFields = [
-        "full_name", "phone_number", "role", "profile_avatar_url", "bio",
-        "state", "city", "latitude", "longitude", "whatsapp_alerts_enabled",
-    ];
-    const update: Record<string, unknown> = {};
-    for (const field of allowedFields) {
-        if (body[field] !== undefined) update[field] = body[field];
-    }
-
-    const { data, error } = await userService.update(req.auth!.userId, update);
-    if (error) throw new HttpError(400, "Unable to update the user profile.");
-    res.json({ success: true, data });
-}));
+router.get("/me", isAuthenticated, usersController.profile);
+router.patch("/me", isAuthenticated, usersController.updateProfile);
 
 export default router;

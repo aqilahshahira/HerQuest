@@ -93,3 +93,22 @@ export interface Application {
     updated_at: string;
     quests?: Quest;
 }
+
+export interface Conversation {
+    id: string;
+    application_id: string;
+    quest_id: string;
+    owner_id: string;
+    applicant_id: string;
+    last_message_at: string;
+    created_at: string;
+}
+
+export interface ChatMessage {
+    id: string;
+    conversation_id: string;
+    sender_id: string;
+    content: string;
+    is_read: boolean;
+    created_at: string;
+}

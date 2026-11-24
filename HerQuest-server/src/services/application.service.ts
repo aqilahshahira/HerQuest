@@ -2,6 +2,15 @@ import { getSupabaseAdmin } from "../config/supabase";
 import type { Application } from "../types";
 
 export const applicationService = {
+    async findMineForQuest(applicantId: string, questId: string) {
+        return getSupabaseAdmin()
+            .from("applications")
+            .select("*")
+            .eq("applicant_id", applicantId)
+            .eq("quest_id", questId)
+            .maybeSingle();
+    },
+
     async create(application: {
         quest_id: string;
         applicant_id: string;
@@ -18,7 +27,7 @@ export const applicationService = {
     async listMine(applicantId: string) {
         return getSupabaseAdmin()
             .from("applications")
-            .select("*, quests(*)")
+            .select("*, quests(*, owner:users!quests_owner_id_fkey(full_name, phone_number))")
             .eq("applicant_id", applicantId)
             .order("applied_at", { ascending: false });
     },

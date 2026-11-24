@@ -5,6 +5,7 @@ import helmet from "helmet";
 import authRoutes from "./routes/auth.routes";
 import questsRoutes from "./routes/quests.routes";
 import applicationsRoutes from "./routes/applications.routes";
+import conversationsRoutes from "./routes/conversations.routes";
 import notFound from "./middleware/notFound.middleware";
 import errorHandler from "./middleware/error.middleware";
 
@@ -25,6 +26,7 @@ app.get("/health", (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/quests", questsRoutes);
 app.use("/api/applications", applicationsRoutes);
+app.use("/api/conversations", conversationsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import HerQuestNav from './components/HerQuestNav';
 import { getApiBaseUrl } from '../lib/api';
 
@@ -166,6 +167,7 @@ const sampleQuestCards: QuestCard[] = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [questCards, setQuestCards] = useState(sampleQuestCards);
   const [questLoadError, setQuestLoadError] = useState('');
   const [search, setSearch] = useState('');
@@ -175,6 +177,33 @@ export default function Home() {
   const [minimumPrice, setMinimumPrice] = useState(0);
   const [dietary, setDietary] = useState<string[]>([]);
   const [selectedQuest, setSelectedQuest] = useState<QuestCard | null>(null);
+  const [applicationStatus, setApplicationStatus] = useState('');
+
+  async function applyToQuest(quest: QuestCard) {
+    const token = localStorage.getItem('herquest_token');
+    if (!token) {
+      window.location.assign('/login');
+      return;
+    }
+
+    setApplicationStatus('Submitting application...');
+    try {
+      const response = await fetch(`${getApiBaseUrl()}/api/applications`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ questId: quest.id }),
+      });
+      const result = await response.json() as { message?: string };
+      if (!response.ok) throw new Error(result.message || 'Unable to submit application.');
+      sessionStorage.setItem('herquest_selected_application_quest', quest.title);
+      router.push('/chathub');
+    } catch (error) {
+      setApplicationStatus(error instanceof Error ? error.message : 'Unable to submit application.');
+    }
+  }
 
   useEffect(() => {
     let isCurrent = true;
@@ -370,7 +399,7 @@ export default function Home() {
                     <button
                       type="button"
                       disabled={quest.owner === 'You'}
-                      onClick={() => setSelectedQuest(quest)}
+                      onClick={() => void applyToQuest(quest)}
                     >
                       {quest.owner === 'You' ? 'Your Quest' : 'Apply & Chat'}
                     </button>
@@ -388,6 +417,10 @@ export default function Home() {
         </div>
       </main>
 
+      {applicationStatus && (
+        <div className="apply-status" role="status">{applicationStatus}</div>
+      )}
+
       {selectedQuest && (
         <div className="apply-modal-backdrop" role="dialog" aria-modal="true">
           <div className="apply-modal">
@@ -403,6 +436,7 @@ export default function Home() {
               </div>
               <div className="modal-actions">
                 <a href={`https://wa.me/${selectedQuest.phone}?text=${encodeURIComponent(`Salam / Hi ${selectedQuest.owner}! I just applied for "${selectedQuest.title}" on HerQuest Malaysia.`)}`} target="_blank" rel="noopener noreferrer">Send WhatsApp Notification</a>
+                <a href="/chathub">Open Applicant Inbox</a>
                 <button type="button" onClick={() => setSelectedQuest(null)}>Done</button>
               </div>
             </div>

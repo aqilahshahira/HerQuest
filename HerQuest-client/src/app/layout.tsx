@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import "./globals.css";
+import AuthGate from './components/AuthGate';
 
 export const metadata = {
   title: "HerQuest Malaysia",
@@ -9,7 +10,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body><AuthGate>{children}</AuthGate></body>
     </html>
   );
 }
